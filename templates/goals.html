@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Goal Predictor - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-goals-text"><i class="fa-solid fa-bullseye"></i> Goal Success Predictor</h2>
+    <p class="text-sm">Estimate the mathematical probability of achieving personal targets using predictive algorithms trained on your historical habit patterns.</p>
+</div>
+
+<!-- Goal Success Predictor Section -->
+<section class="full-width-card glass-card mod-goals">
+    <h3 class="mod-goals-text" style="margin-bottom: 20px;">
+        <div class="icon-circle mod-goals-bg"><i class="fa-solid fa-map-location-dot"></i></div>
+        Goal Probability Index
+    </h3>
+    
+    <div class="goal-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+        {% for goal in analytics.goals %}
+        <div class="goal-item glass-panel mod-goals" style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+            <div class="goal-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 class="mod-goals-text">{{ goal.name }}</h4>
+                <span class="probability mod-goals-text" style="background: rgba(129, 140, 248, 0.15); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid rgba(129, 140, 248, 0.3);">
+                    {{ goal.probability }}
+                </span>
+            </div>
+            <div class="progress-bar"><div class="fill mod-goals-bg" style="width: {{ goal.progress }}%;"></div></div>
+            <p class="text-sm" style="color: var(--text-secondary); font-size: 0.8rem; margin: 0;">{{ goal.completion_text }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Additional Insights -->
+<section class="full-width-card glass-card mod-ai" style="margin-top: 25px;">
+    <h3 class="mod-ai-text" style="margin-bottom: 15px;">
+        <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-lightbulb"></i></div>
+        Optimization Suggestions
+    </h3>
+    <div class="summary-box mod-ai-box" style="padding: 15px; border-radius: var(--radius-sm); font-size: 0.9rem; line-height: 1.4;">
+        <p><strong>Predictive Goal Alignment Notes:</strong></p>
+        <p style="margin-top: 5px;">Your study performance indicates a <strong>{{ analytics.goals[0].probability }}</strong> of meeting your reading target. Adjusting focus hours upwards by <strong>0.5h daily</strong> increases your completion probability by an estimated <strong>+8%</strong>.</p>
+    </div>
+</section>
+{% endblock %}

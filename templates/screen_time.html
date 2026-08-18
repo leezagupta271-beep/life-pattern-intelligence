@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Screen Time - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-screentime-text"><i class="fa-solid fa-mobile-screen"></i> Screen Time Analytics</h2>
+    <p class="text-sm">Monitor daily display exposure limits, track screen time distributions, and optimize digital wellness targets.</p>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Screen Time Chart -->
+    <section class="bento-card glass-card col-span-2 mod-screentime">
+        <h3 class="mod-screentime-text">
+            <div class="icon-circle mod-screentime-bg"><i class="fa-solid fa-chart-column"></i></div>
+            Daily Screen Time Distribution
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Tracking daily screen hours logged over the previous weeks.</p>
+        <div class="chart-placeholder bars mod-screentime-border">
+            <img src="{{ analytics.graphs.screentime_bars }}" alt="Screen Time Bars" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+
+    <!-- Screen Time Stats -->
+    <section class="bento-card glass-card mod-screentime" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-screentime-text">
+                <div class="icon-circle mod-screentime-bg"><i class="fa-solid fa-clock"></i></div>
+                Screen Log
+            </h3>
+            <div style="text-align: center; padding: 20px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Today's Exposure</span>
+                <h1 class="mod-screentime-text" style="font-size: 3.5rem; line-height: 1; margin: 10px 0;">{{ screentime }}h</h1>
+                <span class="tag text-sm" style="background: rgba(168, 85, 247, 0.15); border-radius: 4px; padding: 4px 12px; border: 1px solid rgba(168, 85, 247, 0.3);">
+                    Goal Limit: 4.0 Hours
+                </span>
+            </div>
+        </div>
+
+        <ul class="stat-list" style="padding-top: 15px; border-top: 1px solid var(--glass-border); list-style: none; font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px;">
+            <li style="display: flex; justify-content: space-between;"><span>Daily Average:</span> <strong class="mod-screentime-text">{{ analytics.screentime_avg|round(1) }}h</strong></li>
+            <li style="display: flex; justify-content: space-between;"><span>Vs Last Week:</span> <strong class="mod-screentime-text">{{ analytics.screentime_trend }}</strong></li>
+            <li style="display: flex; justify-content: space-between;"><span>Screen Fatigue Rate:</span> <strong class="mod-screentime-text">{{ "%.0f"|format((screentime / 4.0) * 100) }}%</strong></li>
+        </ul>
+    </section>
+</div>
+
+<!-- Screen Time Recommendations -->
+<section class="full-width-card glass-card mod-recommendations">
+    <h3 class="mod-recommendations-text" style="margin-bottom: 15px;">
+        <div class="icon-circle mod-recommendations-bg"><i class="fa-solid fa-lightbulb"></i></div>
+        Digital Fatigue Suggestions
+    </h3>
+    <p class="text-sm" style="margin-bottom: 15px;">Targeted recommendations calculated from logged screen hours to avoid eye strain and cognitive burnout.</p>
+    <div class="recommendation-box insight-box mod-screentime-box" style="padding: 15px; border-radius: var(--radius-sm); font-size: 0.9rem; line-height: 1.4;">
+        <p><strong>AI Suggestion:</strong></p>
+        <p style="margin-top: 5px;">{{ analytics.insights.suggestions[2].text if (analytics.insights.suggestions|length > 2) else (analytics.insights.suggestions[0].text if analytics.insights.suggestions else "Your screen time is balanced. Maintain screen exposure under 4 hours to preserve cognitive energy levels.") }}</p>
+    </div>
+</section>
+{% endblock %}

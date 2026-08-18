@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}AI Insights - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-ai-text"><i class="fa-solid fa-brain"></i> AI Insights Engine</h2>
+    <p class="text-sm">Advanced ML analysis, explainable AI coefficients, lifestyle clustering and pattern recognition models.</p>
+</div>
+
+<!-- AI Summary Card -->
+<section class="hero-section glass-card mod-ai" style="margin-bottom: 20px;">
+    <div class="ai-summary-card glass-panel" style="width: 100%;">
+        <div class="summary-header mod-ai-text">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Daily Summary
+        </div>
+        <div class="summary-grid">
+            {% if empty_state %}
+            <div class="summary-item"><span>Life Score</span> <strong class="mod-lifescore-text">--/100</strong></div>
+            <div class="summary-item"><span>Productivity</span> <strong class="mod-productivity-text">--</strong></div>
+            <div class="summary-item"><span>Mood</span> <strong class="mod-mood-text">-- (Avg: --/10)</strong></div>
+            <div class="summary-item"><span>Burnout Risk</span> <strong class="mod-health-text">-- (--%)</strong></div>
+            <div class="summary-item"><span>Sleep</span> <strong class="mod-sleep-text">--h (Avg: --h)</strong></div>
+            {% else %}
+            <div class="summary-item"><span>Life Score</span> <strong class="mod-lifescore-text">{{ prediction }}/100</strong></div>
+            <div class="summary-item"><span>Productivity</span> <strong class="mod-productivity-text">{{ analytics.productivity_level }}</strong></div>
+            <div class="summary-item"><span>Mood</span> <strong class="mod-mood-text">{{ analytics.mood_emoji }} (Avg: {{ analytics.mood_avg }}/10)</strong></div>
+            <div class="summary-item"><span>Burnout Risk</span> <strong class="mod-health-text">{{ analytics.burnout.category }} ({{ analytics.burnout.score }}%)</strong></div>
+            <div class="summary-item"><span>Sleep</span> <strong class="mod-sleep-text">{{ sleep }}h (Avg: {{ analytics.sleep_avg }}h)</strong></div>
+            {% endif %}
+        </div>
+        <div class="recommendation-highlight" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--glass-border);">
+            <strong class="mod-recommendations-text">Primary Driver:</strong> Today's productivity is strongly influenced by your <strong>{{ analytics.insights.most_influential }}</strong>.
+        </div>
+    </div>
+</section>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Explainable AI -->
+    <section class="bento-card glass-card col-span-2 mod-ai">
+        <h3 class="mod-ai-text">
+            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-brain"></i></div>
+            Explainable AI (SHAP Feature Importance)
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Calculated weights indicating how each lifestyle choice impacts your Life Score using a RandomForestRegressor model.</p>
+        <div class="chart-placeholder large mod-ai-border">
+            <img src="{{ analytics.graphs.feature_importance }}" alt="Feature Importance" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+        <div class="explanation-card insight-box mod-ai-box" style="margin-top: 15px;">
+            AI models indicate productivity is primarily driven by <strong class="mod-sleep-text">{{ analytics.insights.most_influential }}</strong> and <strong class="mod-health-text">Sleep consistency</strong>.
+        </div>
+    </section>
+
+    <!-- Life Balance Radar -->
+    <section class="bento-card glass-card mod-ai">
+        <h3 class="mod-ai-text">
+            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-satellite-dish"></i></div>
+            Life Balance Radar
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Comparison of your scores against target benchmarks across 7 dimensions.</p>
+        <div class="chart-placeholder radar mod-ai-border" style="position:relative; height:280px; margin:auto; max-width:100%;">
+            <canvas id="radarChart"></canvas>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const radarData = {{ analytics.radar | tojson }};
+                    const ctx = document.getElementById('radarChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: radarData.axes,
+                            datasets: [
+                                {
+                                    label: 'Current Score',
+                                    data: radarData.user_scores,
+                                    backgroundColor: 'rgba(0, 245, 212, 0.2)',
+                                    borderColor: 'rgba(0, 245, 212, 1)',
+                                    pointBackgroundColor: 'rgba(0, 245, 212, 1)'
+                                },
+                                {
+                                    label: 'Benchmark',
+                                    data: radarData.benchmark,
+                                    backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                                    borderColor: 'rgba(168, 85, 247, 1)',
+                                    pointBackgroundColor: 'rgba(168, 85, 247, 1)'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { 
+                                r: { 
+                                    suggestedMin: 0, 
+                                    suggestedMax: 100, 
+                                    ticks: { stepSize: 20, display: false },
+                                    angleLines: { color: 'rgba(255, 255, 255, 0.15)' },
+                                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                } 
+                            },
+                            plugins: { legend: { position: 'top', labels: { color: '#FFFFFF' } } }
+                        }
+                    });
+                });
+            </script>
+        </div>
+        <div class="radar-summary text-sm" style="margin-top: 15px; font-size: 0.85rem;">
+            <p><strong>Overall Balance:</strong> {{ analytics.radar.balance_score }}%</p>
+            <p><strong>Strongest:</strong> <span class="mod-lifescore-text">{{ analytics.radar.strongest }} ({{ analytics.radar.strongest_score }})</span></p>
+            <p><strong>Weakest:</strong> <span class="mod-burnout-text">{{ analytics.radar.weakest }} ({{ analytics.radar.weakest_score }})</span></p>
+        </div>
+    </section>
+</div>
+
+<div class="bento-grid">
+    <!-- Lifestyle Clusters -->
+    <section class="bento-card glass-card col-span-2 mod-productivity">
+        <h3 class="mod-productivity-text">
+            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-chart-scatter"></i></div>
+            Lifestyle Clusters (K-Means Classification)
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">We cluster you into behavioral archetypes using K-Means clustering relative to the reference population.</p>
+        <div class="chart-placeholder large scatter mod-productivity-border">
+            <img src="{{ analytics.graphs.scatter }}" alt="Lifestyle Scatter Plot" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+        <div style="margin-top: 15px; padding: 15px; border-radius: var(--radius-sm); background: rgba(20, 16, 42, 0.4); border: 1px solid var(--glass-border);">
+            <p><strong>Your Assigned Cluster:</strong> <span class="mod-productivity-text" style="font-weight: bold;">{{ analytics.cluster.cluster_name if analytics.cluster else 'Balanced Performer' }}</span></p>
+            <p class="text-sm" style="margin-top: 5px; color: var(--text-secondary);">{{ analytics.cluster.explanation if analytics.cluster else 'You have balanced habits showing consistent results.' }}</p>
+            <div class="cluster-legend" style="margin-top: 10px;">
+                <strong>Key Characteristics:</strong>
+                {% if analytics.cluster and analytics.cluster.characteristics %}
+                    {% for char in analytics.cluster.characteristics %}
+                    <span class="tag text-sm" style="background: rgba(168, 85, 247, 0.2); border-radius: 4px; padding: 2px 8px; margin-right: 5px; border: 1px solid rgba(168, 85, 247, 0.4);">{{ char }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span class="tag text-sm" style="background: rgba(168, 85, 247, 0.2); border-radius: 4px; padding: 2px 8px; margin-right: 5px; border: 1px solid rgba(168, 85, 247, 0.4);">High Output</span>
+                    <span class="tag text-sm" style="background: rgba(168, 85, 247, 0.2); border-radius: 4px; padding: 2px 8px; margin-right: 5px; border: 1px solid rgba(168, 85, 247, 0.4);">Consistent Habits</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Patterns & Anomalies -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Hidden Patterns -->
+        <section class="glass-card mod-ai" style="padding: 20px; flex: 1;">
+            <h3 class="mod-ai-text" style="margin-bottom: 15px;">
+                <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                Hidden Patterns
+            </h3>
+            <div class="pattern-card glass-panel mod-ai" style="padding: 15px; border-radius: var(--radius-sm);">
+                <h4 class="mod-ai-text">High Screen Time &rarr; Lower Focus</h4>
+                <p class="text-sm"><strong>Confidence:</strong> 88%</p>
+                <p class="text-sm"><strong>Impact:</strong> <span class="mod-burnout-text">Strong Inverse Link</span></p>
+                <p class="suggestion insight-box mod-ai-box" style="margin-top: 10px; padding: 8px;"><strong class="mod-ai-text">Action:</strong> Limit screen time to under 4h daily.</p>
+            </div>
+        </section>
+
+        <!-- Anomaly Log -->
+        <section class="glass-card mod-burnout" style="padding: 20px; flex: 1;">
+            <h3 class="mod-burnout-text" style="margin-bottom: 15px;">
+                <div class="icon-circle mod-burnout-bg"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                Anomaly Detection
+            </h3>
+            <div class="anomaly-content">
+                <h4 class="mod-burnout-text">Anomaly Log</h4>
+                <p class="text-sm" style="margin-bottom: 10px;">{{ analytics.anomalies[0] if analytics.anomalies else "No recent anomalous lifestyle patterns observed." }}</p>
+                <span class="anomaly-status-tag" style="padding: 4px 10px; background: rgba(255, 95, 109, 0.15); border-radius: 4px; border: 1px solid rgba(255, 95, 109, 0.3); font-size: 0.8rem; color: #FF5F6D;"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp;Flagged &mdash; Under Review</span>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

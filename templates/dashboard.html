@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<!-- Welcome & Quick Predict Form -->
+<div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px;">
+    
+    <!-- Hero Section -->
+    <section class="hero-section glass-card mod-ai" style="margin: 0;">
+        <div class="hero-content">
+            <h2>Good Morning, {{ session.get('user_name', 'there') }}</h2>
+            <p class="tagline">"Your life generates data. We turn it into intelligence."</p>
+        </div>
+    </section>
+
+    <!-- Predict Life Score Form -->
+    <section class="glass-card lifestyle-form-card" style="margin: 0; padding: 25px;">
+        <div class="section-heading" style="margin-bottom: 20px;">
+            <h3 class="mod-lifescore-text" style="margin: 0; font-size: 1.3rem;">
+                <i class="fa-solid fa-calculator"></i> Log Daily Habits & Predict Life Score
+            </h3>
+            <p class="text-sm" style="margin: 8px 0 0; color: var(--text-muted);">Enter your own values to generate a fresh health and productivity prediction.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack" style="margin-bottom: 18px;">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('predict') }}" method="POST" class="lifestyle-form" novalidate>
+            <div class="field-group">
+                <label for="Sleep">Sleep Hours</label>
+                <input id="Sleep" name="Sleep" type="number" class="input-field" min="0" max="24" step="0.1" placeholder="How well did you sleep?" value="" required>
+            </div>
+
+            <div class="field-group field-group-wide">
+                <label>Mood</label>
+                <div class="choice-grid mood-grid" role="radiogroup" aria-label="Mood selector">
+                    {% for score in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] %}
+                        {% set mood_icons = ['😞', '😕', '😟', '😐', '🙂', '😌', '😊', '😄', '🤩', '😎'] %}
+                        <label class="choice-option mood-option">
+                            <input type="radio" name="Mood" value="{{ score }}" aria-label="Mood {{ score }}">
+                            <span><em>{{ mood_icons[loop.index0] }}</em><small>{{ score }}</small></span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="field-group field-group-wide">
+                <label>Exercise</label>
+                <div class="choice-grid exercise-grid" role="radiogroup" aria-label="Exercise selector">
+                    <label class="choice-option exercise-option">
+                        <input type="radio" name="Exercise" value="Yes">
+                        <span><i class="fa-solid fa-dumbbell"></i> Yes</span>
+                    </label>
+                    <label class="choice-option exercise-option">
+                        <input type="radio" name="Exercise" value="No">
+                        <span><i class="fa-solid fa-ban"></i> No</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label for="Steps">Steps</label>
+                <input id="Steps" name="Steps" type="number" class="input-field" min="0" max="100000" step="1" placeholder="How active were you today?" value="" required>
+            </div>
+
+            <div class="field-group">
+                <label for="ScreenTime">Screen Time</label>
+                <input id="ScreenTime" name="ScreenTime" type="number" class="input-field" min="0" max="24" step="0.1" placeholder="Time on screens today?" value="" required>
+            </div>
+
+            <div class="field-group">
+                <label for="StudyHours">Study / Focus Hours</label>
+                <input id="StudyHours" name="StudyHours" type="number" class="input-field" min="0" max="24" step="0.1" placeholder="How focused were you?" value="" required>
+            </div>
+
+            <div class="field-group">
+                <label for="Water">Water Intake</label>
+                <input id="Water" name="Water" type="number" class="input-field" min="0" max="20" step="0.1" placeholder="Hydration today?" value="" required>
+            </div>
+
+            <div class="field-group field-group-wide">
+                <label>Stress Level</label>
+                <div class="choice-grid stress-grid" role="radiogroup" aria-label="Stress selector">
+                    {% for level in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] %}
+                        <label class="choice-option stress-option">
+                            <input type="radio" name="Stress" value="{{ level }}">
+                            <span>{{ level }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label for="Expense">Daily Expenses</label>
+                <input id="Expense" name="Expense" type="number" class="input-field" min="0" step="0.01" placeholder="Today's spending" value="" required>
+            </div>
+
+            <div class="form-actions" style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 10px;">
+                <button type="submit" class="btn-primary form-submit-btn">
+                    Predict Life Score
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+
+{% if not empty_state %}
+<!-- KPI Cards -->
+<section class="kpi-grid" style="margin-bottom: 25px;">
+    <div class="kpi-card glass-card mod-lifescore">
+        <div class="kpi-header mod-lifescore-text">
+            <div class="icon-circle mod-lifescore-bg"><i class="fa-solid fa-star"></i></div>
+            Life Score
+        </div>
+        <div class="kpi-value mod-lifescore-text">
+            {{ prediction if prediction is not none else '--' }}
+        </div>
+        <div class="kpi-trend"><i class="fa-solid fa-arrow-trend-up"></i> {{ analytics.health_score_trend }}</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_lifescore }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+    <div class="kpi-card glass-card mod-mood">
+        <div class="kpi-header mod-mood-text">
+            <div class="icon-circle mod-mood-bg"><i class="fa-solid fa-face-smile-beam"></i></div>
+            Mood
+        </div>
+        <div class="kpi-value mod-mood-text">{{ mood if mood is defined else 7 }}/10</div>
+        <div class="kpi-trend">{{ analytics.mood_trend }}</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_mood }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+    <div class="kpi-card glass-card mod-productivity">
+        <div class="kpi-header mod-productivity-text">
+            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-bolt"></i></div>
+            Productivity
+        </div>
+        <div class="kpi-value mod-productivity-text">{{ analytics.productivity_val }}%</div>
+        <div class="kpi-trend">{{ analytics.productivity_level }}</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_productivity }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+    <div class="kpi-card glass-card mod-sleep">
+        <div class="kpi-header mod-sleep-text">
+            <div class="icon-circle mod-sleep-bg"><i class="fa-solid fa-moon"></i></div>
+            Sleep
+        </div>
+        <div class="kpi-value mod-sleep-text">{{ sleep if sleep is defined else 7.5 }}h</div>
+        <div class="kpi-trend">{{ analytics.sleep_trend }}</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_sleep }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+    <div class="kpi-card glass-card mod-screentime">
+        <div class="kpi-header mod-screentime-text">
+            <div class="icon-circle mod-screentime-bg"><i class="fa-solid fa-mobile-screen"></i></div>
+            Screen Time
+        </div>
+        <div class="kpi-value mod-screentime-text">{{ screentime if screentime is defined else 4.2 }}h</div>
+        <div class="kpi-trend">{{ analytics.screentime_trend }}</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_screentime }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+    <div class="kpi-card glass-card mod-health">
+        <div class="kpi-header mod-health-text">
+            <div class="icon-circle mod-health-bg"><i class="fa-solid fa-glass-water"></i></div>
+            Water
+        </div>
+        <div class="kpi-value mod-health-text">{{ water if water is defined else 2.0 }}L</div>
+        <div class="kpi-trend">Goal: {{ "%.0f"|format(analytics.water_goal_pct) }}%</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_water }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+    <div class="kpi-card glass-card mod-health">
+        <div class="kpi-header mod-health-text">
+            <div class="icon-circle mod-health-bg"><i class="fa-solid fa-shoe-prints"></i></div>
+            Steps
+        </div>
+        <div class="kpi-value mod-health-text">{{ "{:,.0f}".format(steps) if steps is defined else "8,432" }}</div>
+        <div class="kpi-trend">{{ analytics.steps_trend }}</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_steps }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+    <div class="kpi-card glass-card mod-finance">
+        <div class="kpi-header mod-finance-text">
+            <div class="icon-circle mod-finance-bg"><i class="fa-solid fa-money-bill-wave"></i></div>
+            Expenses
+        </div>
+        <div class="kpi-value mod-finance-text">${{ "{:,.0f}".format(expense) if expense is defined else "1,240" }}</div>
+        <div class="kpi-trend">{{ analytics.expense_trend }}</div>
+        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_expense }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+    </div>
+</section>
+{% endif %}
+
+{% if not empty_state %}
+<!-- Small Previews of key sections -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+    
+    <!-- AI recommendations preview -->
+    <div class="glass-card mod-recommendations" style="padding: 20px;">
+        <h3 class="mod-recommendations-text" style="margin-bottom: 15px;">
+            <i class="fa-solid fa-lightbulb"></i> Recommendations Preview
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Your habits suggest improvements in various areas:</p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% for rec in analytics.insights.suggestions[:2] %}
+            <div class="glass-panel mod-recommendations" style="padding: 10px; border-radius: var(--radius-sm);">
+                <strong class="text-sm" style="color: var(--text-primary);">{{ rec.title if rec.title is defined else 'AI Recommendation' }}</strong>
+                <p class="text-sm" style="margin-top: 3px; font-size: 0.8rem; line-height: 1.3;">{{ rec.text if rec.text is defined else rec }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('recommendations') }}" class="mod-recommendations-text" style="display: block; margin-top: 15px; font-weight: bold; text-decoration: none; font-size: 0.9rem;">View All Recommendations &rarr;</a>
+    </div>
+
+    <!-- Habit Insights Preview -->
+    <div class="glass-card mod-ai" style="padding: 20px;">
+        <h3 class="mod-ai-text" style="margin-bottom: 15px;">
+            <i class="fa-solid fa-brain"></i> Habit Analysis Preview
+        </h3>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+            {% for insight in analytics.habit_insights[:3] %}
+            <li class="text-sm" style="display: flex; gap: 8px; line-height: 1.3;">
+                <i class="fa-solid fa-circle-check mod-health-text" style="margin-top: 3px;"></i>
+                <span>{{ insight }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('habit_analytics') }}" class="mod-ai-text" style="display: block; margin-top: 15px; font-weight: bold; text-decoration: none; font-size: 0.9rem;">Analyze Habits &rarr;</a>
+    </div>
+
+    <!-- Goals preview -->
+    <div class="glass-card mod-goals" style="padding: 20px;">
+        <h3 class="mod-goals-text" style="margin-bottom: 15px;">
+            <i class="fa-solid fa-bullseye"></i> Goal Tracker Preview
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for goal in analytics.goals[:2] %}
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                    <span class="mod-goals-text" style="font-weight: 500;">{{ goal.name }}</span>
+                    <span>{{ goal.probability }}</span>
+                </div>
+                <div class="progress-bar"><div class="fill mod-goals-bg" style="width: {{ goal.progress }}%;"></div></div>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('goals') }}" class="mod-goals-text" style="display: block; margin-top: 20px; font-weight: bold; text-decoration: none; font-size: 0.9rem;">View All Goals &rarr;</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

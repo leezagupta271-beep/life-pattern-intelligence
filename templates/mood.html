@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Mood Intelligence - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-mood-text"><i class="fa-solid fa-face-smile"></i> Mood Intelligence</h2>
+    <p class="text-sm">Log daily mood and analyze patterns to identify biological and digital stressors that impact your emotional well-being.</p>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Mood Calendar -->
+    <section class="bento-card glass-card col-span-2 mod-mood">
+        <h3 class="mod-mood-text">
+            <div class="icon-circle mod-mood-bg"><i class="fa-solid fa-calendar-days"></i></div>
+            Mood Calendar Heatmap
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Monthly distribution chart illustrating emotional states based on daily logged values.</p>
+        <div class="chart-placeholder calendar mod-mood-border">
+            <img src="{{ analytics.graphs.mood_calendar }}" alt="Mood Calendar" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+
+    <!-- Sentiment Analysis KPI -->
+    <section class="bento-card glass-card mod-mood" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-mood-text">
+                <div class="icon-circle mod-mood-bg"><i class="fa-solid fa-masks-theater"></i></div>
+                Daily Sentiment
+            </h3>
+            <div style="text-align: center; padding: 20px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Today's Emotional Index</span>
+                <h1 style="font-size: 4rem; line-height: 1; margin: 15px 0;">{{ analytics.mood_emoji }}</h1>
+                <span class="tag text-sm" style="background: rgba(255, 77, 157, 0.15); border-radius: 4px; padding: 4px 12px; border: 1px solid rgba(255, 77, 157, 0.3);">
+                    Level: {{ mood }}/10 (Avg: {{ analytics.mood_avg|round(1) }})
+                </span>
+            </div>
+        </div>
+
+        <div class="journal-sentiment" style="padding: 10px; border-radius: var(--radius-sm); background: rgba(20, 16, 42, 0.4); border: 1px solid var(--glass-border); font-size: 0.85rem;">
+            <strong>Sentiment Log:</strong> Today's emotional index correlates with positive social interactions and healthy sleep cycles.
+        </div>
+    </section>
+</div>
+
+<div class="bento-grid">
+    <!-- Mood Timeline Chart -->
+    <section class="bento-card glass-card col-span-2 mod-mood">
+        <h3 class="mod-mood-text">
+            <div class="icon-circle mod-mood-bg"><i class="fa-solid fa-chart-line"></i></div>
+            Mood Timeline & Variation Trends
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Tracking mood changes sequentially over the previous 30 days of logging.</p>
+        <div class="chart-placeholder timeline mod-mood-border">
+            <img src="{{ analytics.graphs.mood_timeline }}" alt="Mood Timeline" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+
+    <!-- AI Notes and Contributing Factors -->
+    <section class="bento-card glass-card mod-ai">
+        <h3 class="mod-ai-text">
+            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-robot"></i></div>
+            AI Mood Notes
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Automated correlations explaining mood patterns.</p>
+        <div class="ai-explanation insight-box mod-mood-box" style="padding: 15px; border-radius: var(--radius-sm); font-size: 0.9rem; line-height: 1.4;">
+            <i class="fa-solid fa-robot mod-mood-text" style="font-size: 1.1rem; margin-bottom: 5px; display: block;"></i>
+            <strong>Observations:</strong> Today's mood is {{ analytics.mood_trend }}. Your mood increases by an average of <strong>0.4 points</strong> on days containing physical exercise.
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Sleep Analytics - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-sleep-text"><i class="fa-solid fa-moon"></i> Sleep Analytics</h2>
+    <p class="text-sm">Track sleep cycles, identify chronic sleep debt, and simulate how sleep increases directly optimize other life metrics.</p>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Sleep Trend Chart -->
+    <section class="bento-card glass-card col-span-2 mod-sleep">
+        <h3 class="mod-sleep-text">
+            <div class="icon-circle mod-sleep-bg"><i class="fa-solid fa-bed"></i></div>
+            Sleep Trend Timeline
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Tracking sleep durations relative to target hours over the previous month.</p>
+        <div class="chart-placeholder medium mod-sleep-border">
+            <img src="{{ analytics.graphs.sleep_trend }}" alt="Sleep Trend" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+
+    <!-- Sleep Quality Stats -->
+    <section class="bento-card glass-card mod-sleep" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-sleep-text">
+                <div class="icon-circle mod-sleep-bg"><i class="fa-solid fa-star"></i></div>
+                Sleep Quality
+            </h3>
+            <div style="text-align: center; padding: 15px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Efficiency Index</span>
+                <h1 class="mod-sleep-text" style="font-size: 3.5rem; line-height: 1; margin: 10px 0;">{{ "%.0f"|format(sleep / 8.0 * 100) }}%</h1>
+                <span class="tag text-sm" style="background: rgba(108, 99, 255, 0.15); border-radius: 4px; padding: 4px 12px; border: 1px solid rgba(108, 99, 255, 0.3);">
+                    Target: 8.0 Hours
+                </span>
+            </div>
+        </div>
+
+        <ul class="stat-list" style="padding-top: 15px; border-top: 1px solid var(--glass-border); list-style: none; font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px;">
+            <li style="display: flex; justify-content: space-between;"><span>Avg Sleep Duration:</span> <strong class="mod-sleep-text">{{ analytics.sleep_avg|round(1) }}h</strong></li>
+            <li style="display: flex; justify-content: space-between;"><span>Logged Sleep Today:</span> <strong class="mod-sleep-text">{{ sleep }}h</strong></li>
+            <li style="display: flex; justify-content: space-between;"><span>Sleep Deficit:</span> <strong class="mod-sleep-text">{{ "%.1f"|format(8.0 - sleep) if sleep < 8 else "0.0" }}h</strong></li>
+        </ul>
+    </section>
+</div>
+
+<!-- Sleep What-If Simulation Chain -->
+<section class="full-width-card glass-card mod-ai" style="margin-bottom: 20px;">
+    <h3 class="mod-ai-text" style="margin-bottom: 15px;">
+        <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-flask"></i></div>
+        Sleep What-If Simulator (ML Pipeline Projection)
+    </h3>
+    <p class="text-sm" style="margin-bottom: 20px;">Using historical linear regression and Random Forest predictions to calculate systemic modifications if sleep is optimized.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+        <div class="glass-panel mod-ai" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Proposed Sleep Increase</span>
+            <h2 class="mod-sleep-text" style="font-size: 2rem; margin: 5px 0;">+{{ analytics.sleep_whatif_chain.sleep_delta }} Hours</h2>
+            <p class="text-sm">To a target of 8.0 hours</p>
+        </div>
+        
+        <div class="glass-panel mod-productivity" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Estimated Productivity Change</span>
+            <h2 class="mod-productivity-text" style="font-size: 2rem; margin: 5px 0;">
+                {% if analytics.sleep_whatif_chain.predicted_productivity_pct >= 0 %}+{% endif %}{{ analytics.sleep_whatif_chain.predicted_productivity_pct }}%
+            </h2>
+            <p class="text-sm">Driven by neural recovery</p>
+        </div>
+
+        <div class="glass-panel mod-burnout" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Estimated Stress Reduction</span>
+            <h2 class="mod-burnout-text" style="font-size: 2rem; margin: 5px 0;">
+                {{ analytics.sleep_whatif_chain.stress_pct_change }}%
+            </h2>
+            <p class="text-sm">Lower cortisol projection</p>
+        </div>
+
+        <div class="glass-panel mod-health" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Burnout Risk Reduction</span>
+            <h2 class="mod-health-text" style="font-size: 2rem; margin: 5px 0;">
+                -{{ analytics.sleep_whatif_chain.burnout_delta }}%
+            </h2>
+            <p class="text-sm">Increased overall resilience</p>
+        </div>
+    </div>
+    
+    <div class="insight-box mod-ai-box" style="margin-top: 20px; font-size: 0.9rem;">
+        <i class="fa-solid fa-circle-info mod-ai-text"></i>
+        <span>Optimizing sleep increases daily cognitive outputs while lowering physiological stress markers.</span>
+    </div>
+</section>
+{% endblock %}

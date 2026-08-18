@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Pattern Intelligence</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div class="aurora-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+        <div class="orb orb-5"></div>
+    </div>
+    
+    <div class="dashboard-container">
+        <!-- 1. Sticky Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fa-solid fa-infinity"></i></div>
+                <h1 class="logo-text">LPI</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#dashboard"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a></li>
+                    <li><a href="#ai-insights" class="nav-ai"><i class="fa-solid fa-brain"></i> <span>AI Insights</span></a></li>
+                    <li><a href="#habit-impact" class="nav-productivity"><i class="fa-solid fa-chart-line"></i> <span>Habit Analytics</span></a></li>
+                    <li><a href="#productivity-heatmap" class="nav-productivity"><i class="fa-solid fa-bolt"></i> <span>Productivity</span></a></li>
+                    <li><a href="#mood-intelligence" class="nav-mood"><i class="fa-solid fa-face-smile"></i> <span>Mood Intelligence</span></a></li>
+                    <li><a href="#sleep-analytics" class="nav-sleep"><i class="fa-solid fa-moon"></i> <span>Sleep Analytics</span></a></li>
+                    <li><a href="#health" class="nav-health"><i class="fa-solid fa-heart-pulse"></i> <span>Health</span></a></li>
+                    <li><a href="#screen-time" class="nav-screentime"><i class="fa-solid fa-mobile-screen"></i> <span>Screen Time</span></a></li>
+                    <li><a href="#finance-dashboard" class="nav-finance"><i class="fa-solid fa-wallet"></i> <span>Finance</span></a></li>
+                    <li><a href="#goal-success-predictor" class="nav-goals"><i class="fa-solid fa-bullseye"></i> <span>Goal Predictor</span></a></li>
+                    <li><a href="#burnout-risk" class="nav-burnout"><i class="fa-solid fa-battery-quarter"></i> <span>Burnout Monitor</span></a></li>
+                    <li><a href="#recommendations" class="nav-recommendations"><i class="fa-solid fa-lightbulb"></i> <span>Recommendations</span></a></li>
+                    <li><a href="#weekly-report" class="nav-reports"><i class="fa-solid fa-file-lines"></i> <span>Reports</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-bottom">
+                <ul>
+                    <li><a href="#"><i class="fa-solid fa-gear"></i> <span>Settings</span></a></li>
+                    <li><a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+    <!-- 2. Top Navigation -->
+    <header class="topbar">
+        <div class="search-bar">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" placeholder="Ask AI to analyze your life patterns...">
+        </div>
+
+        <div class="topbar-right">
+            <div class="date-display">
+                Today, <span class="current-date">{{ current_date }}</span>
+            </div>
+
+            <div class="life-score-badge mod-lifescore-bg">
+                Life Score: <span>{% if empty_state or prediction is none %}--{% else %}{{ prediction }}{% endif %}</span>
+            </div>
+
+            <div class="notification-icon">
+                <i class="fa-regular fa-bell"></i><span class="badge"></span>
+            </div>
+
+            <div class="export-actions" style="display:flex; gap:0.5rem;">
+                <a href="{{ url_for('export_report', fmt='csv', sleep=sleep, mood=mood, exercise=exercise, steps=steps, screentime=screentime, study=study, expense=expense, water=water, stress=stress, prediction=prediction) }}" class="btn-secondary" style="padding:0.4rem 0.9rem; font-size:0.8rem; text-decoration:none;"><i class="fa-solid fa-file-csv"></i> CSV</a>
+                <a href="{{ url_for('export_report', fmt='pdf', sleep=sleep, mood=mood, exercise=exercise, steps=steps, screentime=screentime, study=study, expense=expense, water=water, stress=stress, prediction=prediction) }}" class="btn-primary" style="padding:0.4rem 0.9rem; font-size:0.8rem; text-decoration:none;"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+            </div>
+
+            <div class="profile-avatar" title="Logged in as {{ session.get('user_name') or 'Your profile' }}">
+                <a href="{{ url_for('logout') }}"><img src="https://ui-avatars.com/api/?name={{ (session.get('user_name') or 'LPI') | urlencode }}&background=A855F7&color=fff" alt="Profile Avatar"></a>
+            </div>
+        </div>
+    </header>
+    <div class="content-scroll"></div>
+
+    <form action="/predict" method="POST">
+
+        <section id="dashboard" class="glass-card" style="margin:20px;padding:20px;">
+            <h2>Predict Life Score</h2>
+
+            <label>Sleep</label><br>
+            <select name="Sleep" class="input-field">
+                <option value="" selected disabled hidden>Choose sleep hours</option>
+                <option value="1">1 hour</option>
+                <option value="2">2 hours</option>
+                <option value="3">3 hours</option>
+                <option value="4">4 hours</option>
+                <option value="5">5 hours</option>
+                <option value="6">6 hours</option>
+                <option value="7">7 hours</option>
+                <option value="8">8 hours</option>
+                <option value="9">9 hours</option>
+                <option value="10">10 hours</option>
+                <option value="11">11 hours</option>
+                <option value="12">12 hours</option>
+            </select><br><br>
+
+            <label>Mood</label><br>
+            <select name="Mood" class="input-field">
+                <option value="" selected disabled hidden>Select mood</option>
+                <option value="1">1 - Very Bad</option>
+                <option value="2">2 - Bad</option>
+                <option value="3">3 - Low</option>
+                <option value="4">4 - Okay</option>
+                <option value="5">5 - Neutral</option>
+                <option value="6">6 - Good</option>
+                <option value="7">7 - Happy</option>
+                <option value="8">8 - Very Happy</option>
+                <option value="9">9 - Excellent</option>
+                <option value="10">10 - Amazing</option>
+            </select><br><br>
+
+            <label>Exercise</label><br>
+            <select name="Exercise" class="input-field">
+                <option value="" selected disabled hidden>Select exercise</option>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select><br><br>
+
+            <label>Steps</label><br>
+            <input type="number" name="Steps" class="input-field" placeholder="Enter total steps" min="0" step="1"><br><br>
+
+            <label>Screen Time</label><br>
+            <input type="number" name="ScreenTime" class="input-field" placeholder="Enter screen time (hours)" min="0" step="0.1"><br><br>
+
+            <label>Study Hours</label><br>
+            <input type="number" name="StudyHours" class="input-field" placeholder="Enter study hours" min="0" step="0.1"><br><br>
+
+            <label>Water Intake</label><br>
+            <input type="number" name="Water" class="input-field" placeholder="Enter water intake (litres)" min="0" step="0.1"><br><br>
+
+            <label>Stress</label><br>
+            <input type="number" name="Stress" class="input-field" placeholder="Enter stress level (1-10)" min="1" max="10" step="1"><br><br>
+
+            <label>Expense</label><br>
+            <input type="number" name="Expense" class="input-field" placeholder="Enter today's expense" min="0" step="0.01"><br><br>
+
+            <button type="submit">Predict Life Score</button>
+        </section>
+
+    </form>
+
+    
+                
+                <!-- 3. Hero Section -->
+                <section class="hero-section glass-card mod-ai">
+                    <div class="hero-content">
+                        <h2>Good Morning, {{ session.get('user_name', 'there') }}</h2>
+                        <p class="tagline">"Your life generates data. We turn it into intelligence."</p>
+                    </div>
+                    <div class="ai-summary-card glass-panel">
+                        <div class="summary-header mod-ai-text">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Daily Summary
+                        </div>
+                        <div class="summary-grid">
+                            <div class="summary-item"><span>Life Score</span> <strong class="mod-lifescore-text">{% if empty_state or prediction is none %}--/100{% else %}{{ prediction }}/100{% endif %}</strong></div>
+                            <div class="summary-item"><span>Productivity</span> <strong class="mod-productivity-text">{{ analytics.productivity_level }}</strong></div>
+                            <div class="summary-item"><span>Mood</span> <strong class="mod-mood-text">{{ analytics.mood_emoji }} (Avg: {{ analytics.mood_avg }}/10)</strong></div>
+                            <div class="summary-item"><span>Burnout Risk</span> <strong class="mod-health-text">{{ analytics.burnout.category }} ({{ analytics.burnout.score }}%)</strong></div>
+                            <div class="summary-item"><span>Sleep</span> <strong class="mod-sleep-text">{{ sleep if sleep is defined else 7.5 }}h (Avg: {{ analytics.sleep_avg }}h)</strong></div>
+                        </div>
+                        <div class="recommendation-highlight">
+                            <strong class="mod-recommendations-text">Today's Recommendation:</strong> {{ analytics.recommendation_highlight }}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. KPI Cards -->
+                <section class="kpi-grid">
+                    <div class="kpi-card glass-card mod-lifescore">
+                        <div class="kpi-header mod-lifescore-text">
+                            <div class="icon-circle mod-lifescore-bg"><i class="fa-solid fa-star"></i></div>
+                            Life Score
+                        </div>
+                        <div class="kpi-value mod-lifescore-text">
+                            {{ prediction if prediction else 92 }}
+                        </div>
+                        <div class="kpi-trend"><i class="fa-solid fa-arrow-trend-up"></i> {{ analytics.health_score_trend }}</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_lifescore }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                    <div class="kpi-card glass-card mod-mood">
+                        <div class="kpi-header mod-mood-text">
+                            <div class="icon-circle mod-mood-bg"><i class="fa-solid fa-face-smile-beam"></i></div>
+                            Mood
+                        </div>
+                        <div class="kpi-value mod-mood-text">{{ mood if mood is defined else 7 }}/10</div>
+                        <div class="kpi-trend">{{ analytics.mood_trend }}</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_mood }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                    <div class="kpi-card glass-card mod-productivity">
+                        <div class="kpi-header mod-productivity-text">
+                            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-bolt"></i></div>
+                            Productivity
+                        </div>
+                        <div class="kpi-value mod-productivity-text">{{ analytics.productivity_val }}%</div>
+                        <div class="kpi-trend">{{ analytics.productivity_level }}</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_productivity }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                    <div class="kpi-card glass-card mod-sleep">
+                        <div class="kpi-header mod-sleep-text">
+                            <div class="icon-circle mod-sleep-bg"><i class="fa-solid fa-moon"></i></div>
+                            Sleep
+                        </div>
+                        <div class="kpi-value mod-sleep-text">{{ sleep if sleep is defined else 7.5 }}h</div>
+                        <div class="kpi-trend">{{ analytics.sleep_trend }}</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_sleep }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                    <div class="kpi-card glass-card mod-screentime">
+                        <div class="kpi-header mod-screentime-text">
+                            <div class="icon-circle mod-screentime-bg"><i class="fa-solid fa-mobile-screen"></i></div>
+                            Screen Time
+                        </div>
+                        <div class="kpi-value mod-screentime-text">{{ screentime if screentime is defined else 4.2 }}h</div>
+                        <div class="kpi-trend">{{ analytics.screentime_trend }}</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_screentime }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                    <div class="kpi-card glass-card mod-health">
+                        <div class="kpi-header mod-health-text">
+                            <div class="icon-circle mod-health-bg"><i class="fa-solid fa-glass-water"></i></div>
+                            Water
+                        </div>
+                        <div class="kpi-value mod-health-text">{{ water if water is defined else 2.0 }}L</div>
+                        <div class="kpi-trend">Goal: {{ "%.0f"|format(analytics.water_goal_pct) }}%</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_water }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                    <div class="kpi-card glass-card mod-health">
+                        <div class="kpi-header mod-health-text">
+                            <div class="icon-circle mod-health-bg"><i class="fa-solid fa-shoe-prints"></i></div>
+                            Steps
+                        </div>
+                        <div class="kpi-value mod-health-text">{{ "{:,.0f}".format(steps) if steps is defined else "8,432" }}</div>
+                        <div class="kpi-trend">{{ analytics.steps_trend }}</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_steps }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                    <div class="kpi-card glass-card mod-finance">
+                        <div class="kpi-header mod-finance-text">
+                            <div class="icon-circle mod-finance-bg"><i class="fa-solid fa-money-bill-wave"></i></div>
+                            Expenses
+                        </div>
+                        <div class="kpi-value mod-finance-text">${{ "{:,.0f}".format(expense) if expense is defined else "1,240" }}</div>
+                        <div class="kpi-trend">{{ analytics.expense_trend }}</div>
+                        <div class="chart-placeholder mini"><img src="{{ analytics.graphs.mini_expense }}" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    </div>
+                </section>
+
+                <div class="bento-grid">
+                    <!-- 5. Productivity Heatmap Section -->
+                    <section id="productivity-heatmap" class="bento-card glass-card col-span-2 mod-productivity">
+                        <h3 class="mod-productivity-text">
+                            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                            Productivity Heatmap
+                        </h3>
+                        <div class="chart-placeholder large mod-productivity-border">
+                            <img src="{{ analytics.graphs.heatmap }}" alt="Productivity Heatmap" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="card-footer-stats">
+                            {% if analytics.best_focus_hours %}
+                            <div>Best focus hours: <strong class="mod-productivity-text">{{ analytics.best_focus_hours }}</strong></div>
+                            {% endif %}
+                            {% if analytics.best_day %}
+                            <div>Best day: <strong class="mod-productivity-text">{{ analytics.best_day }}</strong></div>
+                            {% endif %}
+                            {% if analytics.most_productive_week %}
+                            <div>Most productive week: <strong class="mod-productivity-text">{{ analytics.most_productive_week }}</strong></div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <!-- 8. Burnout Risk -->
+                    <section id="burnout-risk" class="bento-card glass-card mod-burnout">
+                        <h3 class="mod-burnout-text">
+                            <div class="icon-circle mod-burnout-bg"><i class="fa-solid fa-battery-quarter"></i></div>
+                            Burnout Risk
+                        </h3>
+                        <div class="chart-placeholder gauge mod-burnout-border">
+                            <img src="{{ analytics.graphs.burnout_gauge }}" alt="Burnout Gauge" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="insight-box mod-burnout-box">
+                            <strong class="mod-burnout-text">Contributing Factors:</strong><br>
+                            {% for driver in analytics.burnout.drivers %}
+                            - {{ driver }}<br>
+                            {% endfor %}
+                            <strong class="mod-burnout-text">Suggestion:</strong> Maintain stress below 5.
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 6. Habit Impact Analysis -->
+                <section class="full-width-card glass-card mod-ai">
+                    <h3 class="mod-ai-text">
+                        <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-diagram-project"></i></div>
+                        Habit Impact Analysis
+                    </h3>
+                    <div class="multi-chart-grid">
+                        <div class="chart-placeholder medium mod-ai-border">
+                            <img src="{{ analytics.graphs.correlation_matrix }}" alt="Correlation Matrix" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="chart-placeholder medium mod-ai-border">
+                            <img src="{{ analytics.graphs.trend_analysis }}" alt="Trend Analysis" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="chart-placeholder medium mod-ai-border">
+                            <img src="{{ analytics.graphs.habit_impact }}" alt="Habit Impact" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                    </div>
+                    <div class="summary-box mod-ai-box" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                        {% for obs in analytics.insights.observations %}
+                        <p><i class="fa-solid fa-check mod-health-text"></i> {{ obs }}</p>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <div class="bento-grid">
+                    <!-- 7. AI What-if Simulator -->
+                    <section id="ai-whatif" class="bento-card glass-card col-span-2 mod-ai">
+                        <h3 class="mod-ai-text">
+                            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-flask"></i></div>
+                            AI What-if Simulator
+                        </h3>
+                        <div class="simulator-comparison mod-ai-box">
+                            <div class="sim-card">
+                                <h4>Current</h4>
+                                <p>Sleep: <strong class="mod-sleep-text">{{ sleep }}h</strong></p>
+                                <p>Energy: <strong class="mod-health-text">{{ analytics.productivity_val }}%</strong></p>
+                            </div>
+                            <div class="sim-vs mod-ai-text">VS</div>
+                            <div class="sim-card predicted">
+                                <h4>Predicted (Sleep 8h)</h4>
+                                <p>Energy: <strong class="mod-health-text">{{ analytics.productivity_val + analytics.whatif.opt_sleep_diff }}%</strong> <i class="fa-solid fa-arrow-up mod-health-text"></i></p>
+                                <p>Productivity: <strong class="mod-productivity-text">{{ "%+.1f"|format(analytics.whatif.opt_sleep_diff) }}%</strong> <i class="fa-solid fa-arrow-up mod-productivity-text"></i></p>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder large mod-ai-border">
+                            <img src="{{ analytics.graphs.whatif_chart }}" alt="What-if Chart" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <p class="prediction-summary insight-box mod-ai-box">Sleeping 8 hours consistently will increase your overall life score by <strong class="mod-lifescore-text">{{ analytics.whatif.opt_sleep_diff }} points</strong>.</p>
+                    </section>
+ 
+                    <!-- 10. Sleep Analytics -->
+                    <section id="sleep-analytics" class="bento-card glass-card mod-sleep">
+                        <h3 class="mod-sleep-text">
+                            <div class="icon-circle mod-sleep-bg"><i class="fa-solid fa-bed"></i></div>
+                            Sleep Analytics
+                        </h3>
+                        <div class="chart-placeholder medium mod-sleep-border">
+                            <img src="{{ analytics.graphs.sleep_trend }}" alt="Sleep Trend" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <ul class="stat-list">
+                            <li>Sleep Quality Score: <strong class="mod-sleep-text">{{ "%.0f"|format(sleep / 8.0 * 100) }}%</strong></li>
+                            <li>Avg Sleep Duration: <strong class="mod-sleep-text">{{ analytics.sleep_avg }}h</strong></li>
+                            <li>Target Duration: <strong class="mod-sleep-text">8.0h</strong></li>
+                            <li>Sleep Deficit: <strong class="mod-sleep-text">{{ "%.1f"|format(8.0 - sleep) if sleep < 8 else "0.0" }}h</strong></li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div class="bento-grid">
+                    <!-- 9. Mood Intelligence -->
+                    <section id="mood-intelligence" class="bento-card glass-card mod-mood">
+                        <h3 class="mod-mood-text">
+                            <div class="icon-circle mod-mood-bg"><i class="fa-solid fa-masks-theater"></i></div>
+                            Mood Intelligence
+                        </h3>
+                        <div class="chart-placeholder calendar mod-mood-border">
+                            <img src="{{ analytics.graphs.mood_calendar }}" alt="Mood Calendar" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="chart-placeholder timeline mod-mood-border">
+                            <img src="{{ analytics.graphs.mood_timeline }}" alt="Mood Timeline" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="journal-sentiment">
+                            <strong>Journal Sentiment:</strong> Sentiment score is {{ analytics.mood_emoji }} today.
+                        </div>
+                        <div class="ai-explanation insight-box mod-mood-box">
+                            <i class="fa-solid fa-robot mod-mood-text"></i> AI notes: Today's mood is {{ analytics.mood_trend }}.
+                        </div>
+                    </section>
+
+                    <!-- 11. Finance Dashboard -->
+                    <section id="finance-dashboard" class="bento-card glass-card mod-finance">
+                        <h3 class="mod-finance-text">
+                            <div class="icon-circle mod-finance-bg"><i class="fa-solid fa-chart-pie"></i></div>
+                            Finance Dashboard
+                        </h3>
+                        <div class="chart-placeholder donut mod-finance-border">
+                            <img src="{{ analytics.graphs.expense_donut }}" alt="Expense Donut" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="chart-placeholder line mod-finance-border">
+                            <img src="{{ analytics.graphs.monthly_spending }}" alt="Monthly Spending" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="savings-card insight-box mod-finance-box">
+                            <h4>Savings Rate</h4>
+                            <div class="progress-bar"><div class="fill mod-finance-bg" style="width: {{ (analytics.savings_val / 2000 * 100)|int }}%;"></div></div>
+                            <p>${{ "{:,.0f}".format(analytics.savings_val) }} of $2,000 monthly allowance saved</p>
+                        </div>
+                    </section>
+
+                    <!-- 12. Screen Time Dashboard -->
+                    <section id="screen-time" class="bento-card glass-card mod-screentime">
+                        <h3 class="mod-screentime-text">
+                            <div class="icon-circle mod-screentime-bg"><i class="fa-solid fa-clock"></i></div>
+                            Screen Time
+                        </h3>
+                        <div class="chart-placeholder bars mod-screentime-border">
+                            <img src="{{ analytics.graphs.screentime_bars }}" alt="Screen Time Bars" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <ul class="stat-list">
+                            <li>Daily Avg: <strong class="mod-screentime-text">{{ analytics.screentime_avg }}h</strong></li>
+                            <li>Vs Last Week: <strong class="mod-screentime-text">{{ analytics.screentime_trend }}</strong></li>
+                        </ul>
+                        <div class="recommendation-box insight-box mod-screentime-box">
+                            {{ analytics.insights.suggestions[0].text if analytics.insights.suggestions else "Maintain healthy screen limits." }}
+                        </div>
+                    </section>
+                </div>
+
+                <!-- NEW: AI Habit Insights -->
+                <section id="health" class="full-width-card glass-card mod-ai">
+                    <h3 class="mod-ai-text">
+                        <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-brain"></i></div>
+                        AI Habit Insights
+                    </h3>
+                    <div class="summary-box mod-ai-box" style="display: grid; gap: 0.75rem;">
+                        {% for insight in analytics.habit_insights[:5] %}
+                        <p><i class="fa-solid fa-check mod-health-text"></i> {{ insight }}</p>
+                        {% endfor %}
+                        {% if analytics.habit_insights|length == 0 %}
+                        <p><i class="fa-solid fa-info-circle mod-health-text"></i> No strong habit insights available yet. Continue logging your inputs for smarter feedback.</p>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- NEW: Habit Relationship Flow -->
+                <section class="full-width-card glass-card mod-productivity">
+                    <h3 class="mod-productivity-text">
+                        <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-arrow-right"></i></div>
+                        Habit Relationship Flow
+                    </h3>
+                    <div class="summary-box mod-productivity-box" style="display: grid; gap: 0.75rem;">
+                        <p><span class="mod-sleep-text">Sleep</span> <i class="fa-solid fa-arrow-right"></i> <strong>Productivity</strong></p>
+                        <p><span class="mod-health-text">Exercise</span> <i class="fa-solid fa-arrow-right"></i> <strong>Mood</strong></p>
+                        <p><span class="mod-burnout-text">Stress</span> <i class="fa-solid fa-arrow-right"></i> <strong>Productivity</strong></p>
+                        <p><span class="mod-health-text">Water</span> <i class="fa-solid fa-arrow-right"></i> <strong>Health</strong></p>
+                        <p><span class="mod-screentime-text">Screen Time</span> <i class="fa-solid fa-arrow-right"></i> <strong>Sleep</strong></p>
+                    </div>
+                </section>
+
+                <!-- NEW: Sleep What If Analysis -->
+                <section class="full-width-card glass-card mod-ai">
+                    <h3 class="mod-ai-text">
+                        <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-chart-line"></i></div>
+                        What If Analysis
+                    </h3>
+                    <div class="summary-box mod-ai-box" style="display: grid; gap: 0.75rem;">
+                        <p><strong>Sleep +{{ analytics.sleep_whatif_chain.sleep_delta }} hours</strong></p>
+                        <p>↓ Predicted Productivity {{ analytics.sleep_whatif_chain.predicted_productivity_pct }}%</p>
+                        <p>↓ Estimated Stress {{ analytics.sleep_whatif_chain.stress_pct_change }}%</p>
+                        <p>↓ Estimated Health Score {{ analytics.sleep_whatif_chain.health_pct_change }}%</p>
+                        <p>↓ Estimated Burnout Risk -{{ analytics.sleep_whatif_chain.burnout_delta }}%</p>
+                    </div>
+                </section>
+
+                <!-- NEW: Habit Impact Scores -->
+                <section class="full-width-card glass-card mod-goals">
+                    <h3 class="mod-goals-text">
+                        <div class="icon-circle mod-goals-bg"><i class="fa-solid fa-heart-pulse"></i></div>
+                        Habit Impact Scores
+                    </h3>
+                    <div class="summary-box mod-goals-box" style="display: grid; gap: 0.75rem;">
+                        <div>
+                            <strong>Sleep Impact</strong>
+                            <div class="progress-bar"><div class="fill mod-sleep-bg" style="width: {{ analytics.habit_impact_scores.sleep_pct }}%;"></div></div>
+                            <span>{{ analytics.habit_impact_scores.sleep_pct }}%</span>
+                        </div>
+                        <div>
+                            <strong>Exercise</strong>
+                            <div class="progress-bar"><div class="fill mod-health-bg" style="width: {{ analytics.habit_impact_scores.exercise_pct }}%;"></div></div>
+                            <span>{{ analytics.habit_impact_scores.exercise_pct }}%</span>
+                        </div>
+                        <div>
+                            <strong>Water</strong>
+                            <div class="progress-bar"><div class="fill mod-finance-bg" style="width: {{ analytics.habit_impact_scores.water_pct }}%;"></div></div>
+                            <span>{{ analytics.habit_impact_scores.water_pct }}%</span>
+                        </div>
+                        <div>
+                            <strong>Stress</strong>
+                            <div class="progress-bar"><div class="fill mod-burnout-bg" style="width: {{ analytics.habit_impact_scores.stress_pct }}%;"></div></div>
+                            <span>{{ analytics.habit_impact_scores.stress_pct }}%</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 13. Goal Success Predictor -->
+                <section id="goal-success-predictor" class="full-width-card glass-card mod-goals">
+                    <h3 class="mod-goals-text">
+                        <div class="icon-circle mod-goals-bg"><i class="fa-solid fa-map-location-dot"></i></div>
+                        Goal Success Predictor
+                    </h3>
+                    <div class="goal-grid">
+                        {% for goal in analytics.goals %}
+                        <div class="goal-item glass-panel mod-goals">
+                            <div class="goal-header">
+                                <h4 class="mod-goals-text">{{ goal.name }}</h4>
+                                <span class="probability mod-goals-text" style="background: rgba(129, 140, 248, 0.15);">{{ goal.probability }}</span>
+                            </div>
+                            <div class="progress-bar"><div class="fill mod-goals-bg" style="width: {{ goal.progress }}%;"></div></div>
+                            <p>{{ goal.completion_text }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <div class="bento-grid">
+                    <!-- 14. AI Recommendation Engine -->
+                    <section id="recommendations" class="bento-card glass-card col-span-2 mod-recommendations">
+                        <h3 class="mod-recommendations-text">
+                            <div class="icon-circle mod-recommendations-bg"><i class="fa-solid fa-wand-magic"></i></div>
+                            AI Recommendation Engine
+                        </h3>
+                        <div class="recommendation-list">
+                            {% for rec in analytics.insights.suggestions %}
+                            <div class="rec-card glass-panel mod-recommendations">
+                                <div class="rec-card-header">
+                                    <span class="priority-tag {% if rec.priority is defined and 'High' in rec.priority %}priority-high{% elif rec.priority is defined and 'Low' in rec.priority %}priority-low{% else %}priority-medium{% endif %}">
+                                        <i class="fa-solid {% if rec.priority is defined and 'High' in rec.priority %}fa-circle-exclamation{% elif rec.priority is defined and 'Low' in rec.priority %}fa-circle-dot{% else %}fa-circle-check{% endif %}"></i>
+                                        {{ rec.priority if rec.priority is defined else 'AI Suggestion' }}
+                                    </span>
+                                    <span class="rec-badge"><i class="fa-solid fa-wand-magic-sparkles"></i>&nbsp;AI Recommendation</span>
+                                </div>
+                                <h4 class="rec-card-title">{{ rec.title if rec.title is defined else 'Suggested Improvement' }}</h4>
+                                <p class="rec-card-text">{{ rec.text if rec.text is defined else rec }}</p>
+                                <div class="rec-card-footer">
+                                    {% if rec.expected is defined and rec.expected %}
+                                    <span class="expected-improvement"><i class="fa-solid fa-chart-line"></i> Predicted Impact: <strong>{{ rec.expected }}</strong></span>
+                                    {% endif %}
+                                    <span class="rec-subtext"><i class="fa-solid fa-sliders"></i> Based on latest habit analysis</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    <!-- 15. Hidden Pattern Discovery -->
+                    <section class="bento-card glass-card mod-ai">
+                        <h3 class="mod-ai-text">
+                            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                            Hidden Patterns
+                        </h3>
+                        <div class="pattern-card glass-panel mod-ai">
+                            <h4 class="mod-ai-text">High Screen Time &rarr; Lower Focus</h4>
+                            <p><strong>Confidence:</strong> 88%</p>
+                            <p><strong>Impact:</strong> <span class="mod-burnout-text">Strong Inverse Link</span></p>
+                            <p class="suggestion insight-box mod-ai-box"><strong class="mod-ai-text">Action:</strong> Limit screen time to under 4h daily.</p>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="bento-grid">
+                    <!-- 16. Lifestyle Anomaly Detection -->
+                    <section class="bento-card glass-card mod-burnout">
+                        <h3 class="mod-burnout-text">
+                            <div class="icon-circle mod-burnout-bg"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            Anomaly Detected
+                        </h3>
+                        <div class="anomaly-content">
+                            <h4 class="mod-burnout-text">Anomaly Log</h4>
+                            <p>{{ analytics.anomalies[0] }}</p>
+                            <span class="anomaly-status-tag"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp;Flagged &mdash; Under Review</span>
+                        </div>
+                    </section>
+                    
+                    <!-- 18. Explainable AI -->
+                    <section class="bento-card glass-card mod-ai">
+                        <h3 class="mod-ai-text">
+                            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-brain"></i></div>
+                            Explainable AI
+                        </h3>
+                        <div class="chart-placeholder medium mod-ai-border">
+                            <img src="{{ analytics.graphs.feature_importance }}" alt="Feature Importance" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="chart-placeholder mini mod-ai-border">
+                            <i class="fa-solid fa-chart-pie chart-icon mod-ai-text"></i> 
+                            <span class="mod-ai-text">Pie Chart</span>
+                        </div>
+                        <div class="explanation-card insight-box mod-ai-box">
+                            AI models indicate productivity is primarily driven by <strong class="mod-sleep-text">{{ analytics.insights.most_influential }}</strong> and <strong class="mod-health-text">Sleep consistency</strong>.
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 17. Weekly AI Report -->
+                <section id="weekly-report" class="full-width-card glass-card mod-reports">
+                    <h3 class="mod-reports-text">
+                        <div class="icon-circle mod-reports-bg"><i class="fa-solid fa-calendar-week"></i></div>
+                        Weekly AI Report
+                    </h3>
+                    <div class="report-grid">
+                        <div class="report-section glass-panel mod-reports">
+                            <h4><i class="fa-solid fa-trophy mod-finance-text"></i> Achievements</h4>
+                            <ul>
+                                {% for ach in analytics.weekly_report.achievements %}
+                                <li>{{ ach }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="report-section glass-panel mod-reports">
+                            <h4><i class="fa-solid fa-circle-exclamation mod-burnout-text"></i> Problems</h4>
+                            <ul>
+                                {% for prob in analytics.weekly_report.problems %}
+                                <li>{{ prob }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="report-section glass-panel mod-reports">
+                            <h4><i class="fa-solid fa-arrow-trend-up mod-health-text"></i> Improvements</h4>
+                            <ul>
+                                {% for imp in analytics.weekly_report.improvements %}
+                                <li>{{ imp }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="weekly-score">Weekly Score: <span class="mod-reports-text">{{ analytics.weekly_report.weekly_score }}</span> <span class="text-sm">(vs {{ analytics.weekly_report.prev_weekly_score }} Last Week)</span></div>
+                </section>
+
+                <div class="bento-grid">
+                    <!-- 19. Life Balance Radar -->
+                    <section class="bento-card glass-card col-span-2 mod-ai">
+                        <h3 class="mod-ai-text">
+                            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-satellite-dish"></i></div>
+                            Life Balance Radar
+                        </h3>
+                        <div class="chart-placeholder large radar mod-ai-border" style="position:relative; height:350px; margin:auto; max-width:100%;">
+  <canvas id="radarChart"></canvas>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const radarData = {{ analytics.radar | tojson }};
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: radarData.axes,
+          datasets: [
+            {
+              label: 'Current Score',
+              data: radarData.user_scores,
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              pointBackgroundColor: 'rgba(54, 162, 235,1)'
+            },
+            {
+              label: 'Target/Benchmark',
+              data: radarData.benchmark,
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: 'rgba(255,99,132,1)',
+              pointBackgroundColor: 'rgba(255,99,132,1)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { stepSize: 20 } } },
+          plugins: { legend: { position: 'top' }, tooltip: { enabled: true } }
+        }
+      });
+    });
+  </script>
+  <div class="radar-summary text-sm mt-2">
+    <p><strong>Overall Balance Score:</strong> {{ analytics.radar.balance_score }}</p>
+    <p><strong>Strongest Area:</strong> {{ analytics.radar.strongest }} ({{ analytics.radar.strongest_score }})</p>
+    <p><strong>Weakest Area:</strong> {{ analytics.radar.weakest }} ({{ analytics.radar.weakest_score }})</p>
+    <p><strong>Recommendation:</strong> Focus on improving {{ analytics.radar.weakest }}.</p>
+  </div>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        </div>
+                    </section>
+
+                    <!-- 20. Cluster Visualization -->
+                    <section class="bento-card glass-card mod-productivity">
+                        <h3 class="mod-productivity-text">
+                            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-chart-scatter"></i></div>
+                            Lifestyle Clusters
+                        </h3>
+                        <div class="chart-placeholder large scatter mod-productivity-border">
+                            <img src="{{ analytics.graphs.scatter }}" alt="Lifestyle Scatter Plot" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+                        </div>
+                        <div class="cluster-legend">
+                            <span class="dot mod-productivity-bg"></span> High Energy
+                            <span class="dot mod-sleep-bg"></span> Recovery
+                        </div>
+                        <p class="text-sm text-secondary">You have distinct clusters of high-output vs recovery days. Good balance.</p>
+                    </section>
+                </div>
+
+
+                <!-- 23. Footer -->
+                <footer class="dashboard-footer">
+                    <p class="mod-ai-text" style="display:inline-block; font-weight:600;">Life Pattern Intelligence &copy; 2026</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

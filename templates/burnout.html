@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Burnout Monitor - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-burnout-text"><i class="fa-solid fa-battery-quarter"></i> Burnout Monitor</h2>
+    <p class="text-sm">Track chronic stress patterns, screen time excesses, and physical deficit indices to forecast and mitigate fatigue risks.</p>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Burnout Risk Gauge -->
+    <section class="bento-card glass-card col-span-2 mod-burnout">
+        <h3 class="mod-burnout-text">
+            <div class="icon-circle mod-burnout-bg"><i class="fa-solid fa-gauge"></i></div>
+            Burnout Index
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Polar projection gauge displaying cumulative burnout hazard coefficient.</p>
+        <div class="chart-placeholder gauge mod-burnout-border" style="min-height: 280px;">
+            <img src="{{ analytics.graphs.burnout_gauge }}" alt="Burnout Gauge" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+
+    <!-- Contributing Factors & Risk Classification -->
+    <section class="bento-card glass-card mod-burnout" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-burnout-text">
+                <div class="icon-circle mod-burnout-bg"><i class="fa-solid fa-shield-halved"></i></div>
+                Risk Classification
+            </h3>
+            <div style="text-align: center; padding: 15px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Current Risk Class</span>
+                <h1 class="mod-burnout-text" style="font-size: 2.2rem; line-height: 1.2; margin: 15px 0;">{{ analytics.burnout.category }}</h1>
+                <span class="tag text-sm" style="background: rgba(255, 95, 109, 0.15); border-radius: 4px; padding: 4px 12px; border: 1px solid rgba(255, 95, 109, 0.3);">
+                    Score: {{ analytics.burnout.score }}%
+                </span>
+            </div>
+        </div>
+
+        <div class="insight-box mod-burnout-box" style="padding: 12px; border-radius: var(--radius-sm); font-size: 0.85rem;">
+            <strong class="mod-burnout-text">Contributing Factors:</strong><br>
+            <ul style="list-style: none; margin-top: 5px; display: flex; flex-direction: column; gap: 4px;">
+                {% for driver in analytics.burnout.drivers %}
+                <li>- {{ driver }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+</div>
+
+<!-- Recommendations -->
+<section class="full-width-card glass-card mod-recommendations">
+    <h3 class="mod-recommendations-text" style="margin-bottom: 15px;">
+        <div class="icon-circle mod-recommendations-bg"><i class="fa-solid fa-lightbulb"></i></div>
+        Mitigation Strategy
+    </h3>
+    <div class="recommendation-box insight-box mod-screentime-box" style="padding: 15px; border-radius: var(--radius-sm); font-size: 0.9rem; line-height: 1.4;">
+        <p><strong>Primary AI Burnout Recommendation:</strong></p>
+        <p style="margin-top: 5px;">Maintain stress scores below <strong>5</strong>. Increasing exercise intervals and limiting display hours to under <strong>4.5h daily</strong> decreases cumulative burnout risk by approximately <strong>{{ analytics.sleep_whatif_chain.burnout_delta }}%</strong>.</p>
+    </div>
+</section>
+{% endblock %}

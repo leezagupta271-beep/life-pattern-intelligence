@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Health - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-health-text"><i class="fa-solid fa-heart-pulse"></i> Health & Vitality</h2>
+    <p class="text-sm">Assess overall physical health, hydration parameters, active step tracking and habit insights computed via your inputs.</p>
+</div>
+
+<!-- Health Summary Cards (Dynamic) -->
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px;">
+    {% for card in analytics.health_cards %}
+    <div class="glass-card {% if card.type == 'success' %}mod-health{% elif card.type == 'danger' %}mod-burnout{% elif card.type == 'warning' %}mod-finance{% else %}mod-ai{% endif %}" style="padding: 15px; display: flex; align-items: center; gap: 15px;">
+        <div class="icon-circle {% if card.type == 'success' %}mod-health-bg{% elif card.type == 'danger' %}mod-burnout-bg{% elif card.type == 'warning' %}mod-finance-bg{% else %}mod-ai-bg{% endif %}" style="margin: 0; width: 45px; height: 45px;">
+            <i class="fa-solid {{ card.icon }}"></i>
+        </div>
+        <div>
+            <h4 style="font-size: 0.95rem; margin-bottom: 3px;">{{ card.title }}</h4>
+            <p class="text-sm" style="color: var(--text-secondary); font-size: 0.8rem;">{{ card.text }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Water Intake Card -->
+    <section class="bento-card glass-card mod-health" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-health-text">
+                <div class="icon-circle mod-health-bg"><i class="fa-solid fa-glass-water"></i></div>
+                Hydration Tracker
+            </h3>
+            <p class="text-sm" style="margin-bottom: 15px;">Daily water logs against recommended intake target.</p>
+            <div style="text-align: center; padding: 15px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Today's Hydration</span>
+                <h1 class="mod-health-text" style="font-size: 3.5rem; line-height: 1; margin: 5px 0;">{{ water }}L</h1>
+                <span class="tag text-sm" style="background: rgba(34, 197, 94, 0.15); border-radius: 4px; padding: 4px 12px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                    Goal Completion: {{ "%.0f"|format(analytics.water_goal_pct) }}%
+                </span>
+            </div>
+        </div>
+        <div class="chart-placeholder mini" style="height: 60px; margin-top: 15px;">
+            <img src="{{ analytics.graphs.mini_water }}" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+    </section>
+
+    <!-- Steps Tracker Card -->
+    <section class="bento-card glass-card mod-health" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-health-text">
+                <div class="icon-circle mod-health-bg"><i class="fa-solid fa-shoe-prints"></i></div>
+                Daily Step Count
+            </h3>
+            <p class="text-sm" style="margin-bottom: 15px;">Total steps walked over active tracking windows.</p>
+            <div style="text-align: center; padding: 15px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Today's Activity</span>
+                <h1 class="mod-health-text" style="font-size: 3.5rem; line-height: 1; margin: 5px 0;">
+                    {{ "{:,.0f}".format(steps) if steps is defined else "8,432" }}
+                </h1>
+                <span class="tag text-sm" style="background: rgba(34, 197, 94, 0.15); border-radius: 4px; padding: 4px 12px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                    Status: {{ analytics.steps_trend }}
+                </span>
+            </div>
+        </div>
+        <div class="chart-placeholder mini" style="height: 60px; margin-top: 15px;">
+            <img src="{{ analytics.graphs.mini_steps }}" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+    </section>
+
+    <!-- Workout Status -->
+    <section class="bento-card glass-card mod-health" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-health-text">
+                <div class="icon-circle mod-health-bg"><i class="fa-solid fa-person-running"></i></div>
+                Exercise Status
+            </h3>
+            <p class="text-sm" style="margin-bottom: 15px;">Physical workout logged for the day.</p>
+            <div style="text-align: center; padding: 25px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Workout Today</span>
+                <h1 class="mod-health-text" style="font-size: 3.5rem; line-height: 1; margin: 10px 0;">{{ exercise }}</h1>
+            </div>
+        </div>
+        <div class="insight-box mod-health-box" style="font-size: 0.85rem; padding: 10px; border-radius: var(--radius-sm);">
+            <strong>Exercise Impact:</strong> Logging exercise increases focus scores by <strong>+5%</strong>.
+        </div>
+    </section>
+</div>
+
+<!-- AI Habit Insights -->
+<section class="full-width-card glass-card mod-ai">
+    <h3 class="mod-ai-text" style="margin-bottom: 15px;">
+        <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-brain"></i></div>
+        AI Health & Habit Insights
+    </h3>
+    <p class="text-sm" style="margin-bottom: 15px;">Correlations computed from historical inputs mapping hydration, exercise, and steps to emotional/cognitive wellness.</p>
+    <div class="summary-box mod-ai-box" style="display: grid; gap: 10px; padding: 15px; border-radius: var(--radius-sm);">
+        {% for insight in analytics.habit_insights[:5] %}
+        <p class="text-sm" style="line-height: 1.4;"><i class="fa-solid fa-check mod-health-text"></i> {{ insight }}</p>
+        {% endfor %}
+        {% if analytics.habit_insights|length == 0 %}
+        <p class="text-sm" style="line-height: 1.4;"><i class="fa-solid fa-info-circle mod-health-text"></i> No strong habit insights available yet. Continue logging inputs.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

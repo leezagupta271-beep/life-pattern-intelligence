@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Life Pattern Intelligence{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div class="aurora-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+        <div class="orb orb-5"></div>
+    </div>
+    
+    <div class="dashboard-container">
+        <!-- 1. Sticky Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fa-solid fa-infinity"></i></div>
+                <h1 class="logo-text">LPI</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="{% if active_page == 'dashboard' %}active{% endif %}"><a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a></li>
+                    <li class="{% if active_page == 'ai_insights' %}active{% endif %}"><a href="{{ url_for('ai_insights') }}" class="nav-ai"><i class="fa-solid fa-brain"></i> <span>AI Insights</span></a></li>
+                    <li class="{% if active_page == 'habit_analytics' %}active{% endif %}"><a href="{{ url_for('habit_analytics') }}" class="nav-productivity"><i class="fa-solid fa-chart-line"></i> <span>Habit Analytics</span></a></li>
+                    <li class="{% if active_page == 'productivity' %}active{% endif %}"><a href="{{ url_for('productivity') }}" class="nav-productivity"><i class="fa-solid fa-bolt"></i> <span>Productivity</span></a></li>
+                    <li class="{% if active_page == 'mood' %}active{% endif %}"><a href="{{ url_for('mood') }}" class="nav-mood"><i class="fa-solid fa-face-smile"></i> <span>Mood Intelligence</span></a></li>
+                    <li class="{% if active_page == 'sleep' %}active{% endif %}"><a href="{{ url_for('sleep') }}" class="nav-sleep"><i class="fa-solid fa-moon"></i> <span>Sleep Analytics</span></a></li>
+                    <li class="{% if active_page == 'health' %}active{% endif %}"><a href="{{ url_for('health') }}" class="nav-health"><i class="fa-solid fa-heart-pulse"></i> <span>Health</span></a></li>
+                    <li class="{% if active_page == 'screen_time' %}active{% endif %}"><a href="{{ url_for('screen_time') }}" class="nav-screentime"><i class="fa-solid fa-mobile-screen"></i> <span>Screen Time</span></a></li>
+                    <li class="{% if active_page == 'finance' %}active{% endif %}"><a href="{{ url_for('finance') }}" class="nav-finance"><i class="fa-solid fa-wallet"></i> <span>Finance</span></a></li>
+                    <li class="{% if active_page == 'goals' %}active{% endif %}"><a href="{{ url_for('goals') }}" class="nav-goals"><i class="fa-solid fa-bullseye"></i> <span>Goal Predictor</span></a></li>
+                    <li class="{% if active_page == 'burnout' %}active{% endif %}"><a href="{{ url_for('burnout') }}" class="nav-burnout"><i class="fa-solid fa-battery-quarter"></i> <span>Burnout Monitor</span></a></li>
+                    <li class="{% if active_page == 'recommendations' %}active{% endif %}"><a href="{{ url_for('recommendations') }}" class="nav-recommendations"><i class="fa-solid fa-lightbulb"></i> <span>Recommendations</span></a></li>
+                    <li class="{% if active_page == 'reports' %}active{% endif %}"><a href="{{ url_for('reports') }}" class="nav-reports"><i class="fa-solid fa-file-lines"></i> <span>Reports</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-bottom">
+                <ul>
+                    <li class="{% if active_page == 'settings' %}active{% endif %}"><a href="{{ url_for('settings') }}"><i class="fa-solid fa-gear"></i> <span>Settings</span></a></li>
+                    <li><a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- 2. Top Navigation -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Ask AI to analyze your life patterns...">
+                </div>
+
+                <div class="topbar-right">
+                    <div class="date-display">
+                        Today, <span class="current-date">{{ current_date }}</span>
+                    </div>
+
+                    <div class="life-score-badge mod-lifescore-bg">
+                        Life Score: <span>{% if empty_state or prediction is none %}__ / 100{% else %}{{ prediction }}/100{% endif %}</span>
+                    </div>
+
+                    <div class="notification-icon">
+                        <i class="fa-regular fa-bell"></i><span class="badge"></span>
+                    </div>
+
+                    <div class="export-actions" style="display:flex; gap:0.5rem;">
+                        <a href="{{ url_for('export_report', fmt='csv', sleep=sleep, mood=mood, exercise=exercise, steps=steps, screentime=screentime, study=study, expense=expense, water=water, stress=stress, prediction=prediction) }}" class="btn-secondary" style="padding:0.4rem 0.9rem; font-size:0.8rem; text-decoration:none;"><i class="fa-solid fa-file-csv"></i> CSV</a>
+                        <a href="{{ url_for('export_report', fmt='pdf', sleep=sleep, mood=mood, exercise=exercise, steps=steps, screentime=screentime, study=study, expense=expense, water=water, stress=stress, prediction=prediction) }}" class="btn-primary" style="padding:0.4rem 0.9rem; font-size:0.8rem; text-decoration:none;"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+                    </div>
+
+                    <div class="profile-avatar" title="Logged in as {{ session.get('user_name') or 'Your profile' }}">
+                        <a href="{{ url_for('logout') }}"><img src="https://ui-avatars.com/api/?name={{ (session.get('user_name') or 'LPI') | urlencode }}&background=A855F7&color=fff" alt="Profile Avatar"></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-scroll" style="padding: 20px;">
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- 23. Footer -->
+            <footer class="dashboard-footer" style="padding: 1.5rem 2rem; border-top: 1px solid var(--glass-border); text-align: center; margin-top: auto; background: rgba(20, 16, 42, 0.4);">
+                <p class="mod-ai-text" style="display:inline-block; font-weight:600;">Life Pattern Intelligence &copy; 2026</p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

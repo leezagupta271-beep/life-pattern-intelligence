@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Productivity - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-productivity-text"><i class="fa-solid fa-bolt"></i> Productivity Intelligence</h2>
+    <p class="text-sm">Examine daily focus outputs, peak performance timeframes, and ML predicted scores based on lifestyle configurations.</p>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Heatmap -->
+    <section class="bento-card glass-card col-span-2 mod-productivity">
+        <h3 class="mod-productivity-text">
+            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-fire-flame-curved"></i></div>
+            Productivity Heatmap
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Heatmap displaying productivity levels across weekdays and daily time blocks.</p>
+        <div class="chart-placeholder large mod-productivity-border">
+            <img src="{{ analytics.graphs.heatmap }}" alt="Productivity Heatmap" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+        <div class="card-footer-stats" style="margin-top: 15px; display: flex; justify-content: space-around; font-size: 0.9rem;">
+            {% if analytics.best_focus_hours %}
+            <div>Best Focus Window: <strong class="mod-productivity-text">{{ analytics.best_focus_hours }}</strong></div>
+            {% endif %}
+            {% if analytics.best_day %}
+            <div>Peak Weekday: <strong class="mod-productivity-text">{{ analytics.best_day }}</strong></div>
+            {% endif %}
+            {% if analytics.most_productive_week %}
+            <div>Best Week of Month: <strong class="mod-productivity-text">{{ analytics.most_productive_week }}</strong></div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Productivity KPI & Prediction Details -->
+    <section class="bento-card glass-card mod-productivity" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-productivity-text" style="margin-bottom: 15px;">
+                <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-calculator"></i></div>
+                Model Forecast
+            </h3>
+            <div style="text-align: center; padding: 20px 0;">
+                <span class="text-sm" style="color: var(--text-muted);">Current Calculated Score</span>
+                <h1 class="mod-productivity-text" style="font-size: 3.5rem; line-height: 1; margin: 10px 0;">{{ analytics.productivity_val }}%</h1>
+                <span class="tag text-sm" style="background: rgba(0, 229, 168, 0.15); border-radius: 4px; padding: 4px 12px; border: 1px solid rgba(0, 229, 168, 0.3);">
+                    {{ analytics.productivity_level }} Output
+                </span>
+            </div>
+        </div>
+
+        <div class="insight-box mod-productivity-box" style="margin-top: 15px; font-size: 0.85rem;">
+            <strong class="mod-productivity-text">Study & Focus hours vs Output:</strong>
+            <p style="margin-top: 5px;">Your daily study/focus hours average <strong>{{ analytics.study_avg|round(1) }}h</strong>. The model predicts a focus output of <strong>{{ analytics.productivity_val }}%</strong> given these criteria.</p>
+        </div>
+    </section>
+</div>
+
+<div class="bento-grid">
+    <!-- Sankey Flow Diagram -->
+    <section class="bento-card glass-card col-span-2 mod-ai">
+        <h3 class="mod-ai-text">
+            <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            Lifestyle Allocation Flow (Sankey Diagram)
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Sankey diagram showing how inputs map into productivity output and loss buckets.</p>
+        <div class="chart-placeholder large mod-ai-border" style="min-height: 300px;">
+            <img src="{{ analytics.graphs.sankey }}" alt="Sankey Diagram" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+
+    <!-- Focus Trends -->
+    <section class="bento-card glass-card mod-sleep">
+        <h3 class="mod-sleep-text">
+            <div class="icon-circle mod-sleep-bg"><i class="fa-solid fa-chart-line"></i></div>
+            Trend Forecast
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Mathematical forecasts for next month's focus performance.</p>
+        <div class="summary-box mod-sleep-box" style="padding: 15px; border-radius: var(--radius-sm); font-size: 0.9rem;">
+            <p style="margin-bottom: 10px;"><strong>Next Month Predictions:</strong></p>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Est. Productivity:</span>
+                <strong class="mod-productivity-text">{{ analytics.monthly_forecast.next_month_productivity }}%</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Est. Study Duration:</span>
+                <strong class="mod-sleep-text">{{ analytics.monthly_forecast.next_month_study }}h/day</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Est. Sleep Time:</span>
+                <strong class="mod-sleep-text">{{ analytics.monthly_forecast.next_month_sleep }}h/day</strong>
+            </div>
+        </div>
+        <p class="text-sm" style="margin-top: 15px; color: var(--text-muted); text-align: center; font-style: italic;">Estimates modeled via historical gradient variations.</p>
+    </section>
+</div>
+{% endblock %}

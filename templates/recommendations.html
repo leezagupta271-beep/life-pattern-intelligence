@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendations - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-recommendations-text"><i class="fa-solid fa-lightbulb"></i> AI Recommendations</h2>
+    <p class="text-sm">Personalized action plans generated dynamically by matching your current daily inputs with historical patterns and ML models.</p>
+</div>
+
+<!-- Recommendations Engine list -->
+<section class="full-width-card glass-card mod-recommendations">
+    <h3 class="mod-recommendations-text" style="margin-bottom: 20px;">
+        <div class="icon-circle mod-recommendations-bg"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        Lifestyle Recommendations
+    </h3>
+    
+    <div class="recommendation-list" style="display: flex; flex-direction: column; gap: 15px;">
+        {% for rec in analytics.insights.suggestions %}
+        <div class="rec-card glass-panel mod-recommendations" style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); width: 100%;">
+            <div class="rec-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span class="priority-tag {% if rec.priority is defined and 'High' in rec.priority %}priority-high{% elif rec.priority is defined and 'Low' in rec.priority %}priority-low{% else %}priority-medium{% endif %}" style="padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                    <i class="fa-solid {% if rec.priority is defined and 'High' in rec.priority %}fa-circle-exclamation{% elif rec.priority is defined and 'Low' in rec.priority %}fa-circle-dot{% else %}fa-circle-check{% endif %}"></i>
+                    {{ rec.priority if rec.priority is defined else 'AI Suggestion' }}
+                </span>
+                <span class="rec-badge" style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-wand-magic-sparkles"></i>&nbsp;AI Engine Recommendation</span>
+            </div>
+            <h4 class="rec-card-title" style="margin-bottom: 8px; font-size: 1.1rem; color: var(--text-primary);">{{ rec.title if rec.title is defined else 'Suggested Habit Adjustment' }}</h4>
+            <p class="rec-card-text" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;">{{ rec.text if rec.text is defined else rec }}</p>
+            
+            <div class="rec-card-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--glass-border); font-size: 0.85rem;">
+                {% if rec.expected is defined and rec.expected %}
+                <span class="expected-improvement" style="color: var(--text-primary);"><i class="fa-solid fa-chart-line mod-productivity-text"></i> Predicted Impact: <strong class="mod-productivity-text">{{ rec.expected }}</strong></span>
+                {% endif %}
+                <span class="rec-subtext" style="color: var(--text-muted);"><i class="fa-solid fa-sliders"></i> Derived from historical behavior trends</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

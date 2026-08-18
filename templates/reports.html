@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-reports-text"><i class="fa-solid fa-file-lines"></i> Weekly AI Reports</h2>
+    <p class="text-sm">Weekly syntheses identifying positive achievements, negative deviations, and structural guidelines derived from logging cycles.</p>
+</div>
+
+<!-- Weekly AI Report Details -->
+<section id="weekly-report" class="full-width-card glass-card mod-reports">
+    <h3 class="mod-reports-text" style="margin-bottom: 20px;">
+        <div class="icon-circle mod-reports-bg"><i class="fa-solid fa-calendar-week"></i></div>
+        Weekly Performance Summary
+    </h3>
+    
+    <div class="report-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div class="report-section glass-panel mod-reports" style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--glass-border);">
+            <h4 class="mod-finance-text" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-trophy"></i> Achievements
+            </h4>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; line-height: 1.4;">
+                {% for ach in analytics.weekly_report.achievements %}
+                <li style="display: flex; gap: 6px;"><i class="fa-solid fa-check mod-health-text" style="margin-top: 3px;"></i> <span>{{ ach }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="report-section glass-panel mod-reports" style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--glass-border);">
+            <h4 class="mod-burnout-text" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-exclamation"></i> Problems
+            </h4>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; line-height: 1.4;">
+                {% for prob in analytics.weekly_report.problems %}
+                <li style="display: flex; gap: 6px;"><i class="fa-solid fa-xmark mod-burnout-text" style="margin-top: 3px;"></i> <span>{{ prob }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="report-section glass-panel mod-reports" style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--glass-border);">
+            <h4 class="mod-health-text" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-arrow-trend-up"></i> Improvements
+            </h4>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; line-height: 1.4;">
+                {% for imp in analytics.weekly_report.improvements %}
+                <li style="display: flex; gap: 6px;"><i class="fa-solid fa-arrows-up-to-line mod-health-text" style="margin-top: 3px;"></i> <span>{{ imp }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="weekly-score" style="font-size: 1.1rem; font-weight: bold; text-align: center; padding-top: 15px; border-top: 1px solid var(--glass-border);">
+        Weekly Score: <span class="mod-reports-text" style="font-size: 1.4rem;">{{ analytics.weekly_report.weekly_score }}</span> 
+        <span class="text-sm" style="font-weight: normal; margin-left: 10px;">(vs {{ analytics.weekly_report.prev_weekly_score }} Last Week)</span>
+    </div>
+</section>
+{% endblock %}

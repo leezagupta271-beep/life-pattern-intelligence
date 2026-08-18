@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-ai-text"><i class="fa-solid fa-gear"></i> Settings</h2>
+    <p class="text-sm">Customize daily thresholds, budget allowances, and view your logged-in profile metrics.</p>
+</div>
+
+<div class="bento-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+    
+    <!-- Profile Card -->
+    <section class="glass-card mod-ai" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="mod-ai-text" style="margin-bottom: 15px;">
+                <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-user"></i></div>
+                Profile Details
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <div>
+                    <span class="text-sm" style="color: var(--text-muted);">Name</span>
+                    <p style="font-weight: 500; font-size: 1.1rem;">{{ session.get('user_name') or 'Your profile' }}</p>
+                </div>
+                <div>
+                    <span class="text-sm" style="color: var(--text-muted);">Email</span>
+                    <p style="font-weight: 500;">{{ session.get('user_email', 'user@example.com') }}</p>
+                </div>
+                <div>
+                    <span class="text-sm" style="color: var(--text-muted);">User Database ID</span>
+                    <p style="font-weight: 500;">#{{ session.get('user_id', 1) }}</p>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--glass-border);">
+            <a href="{{ url_for('logout') }}" class="btn-primary" style="display: inline-block; padding: 8px 20px; border-radius: var(--radius-sm); font-weight: bold; background: var(--grad-burnout); color: #000; text-decoration: none; text-align: center;">Logout Account</a>
+        </div>
+    </section>
+
+    <!-- Habits Targets Configurator -->
+    <section class="glass-card col-span-2 mod-productivity" style="padding: 20px;">
+        <h3 class="mod-productivity-text" style="margin-bottom: 15px;">
+            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-sliders"></i></div>
+            Customize Personal Targets
+        </h3>
+        <p class="text-sm" style="margin-bottom: 20px;">Adjust your biological and digital goals. These values customize your dashboard indicators.</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="padding: 10px 15px; border-radius: var(--radius-sm); margin-bottom: 15px; background: rgba(0, 229, 168, 0.15); border: 1px solid rgba(0, 229, 168, 0.3); font-size: 0.85rem; color: #00E5A8;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/settings" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 500;">Sleep Goal (Hours)</label>
+                <input type="number" name="target_sleep" class="input-field" value="{{ session.get('target_sleep', 8.0) }}" min="4" max="12" step="0.5" style="width: 100%; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 500;">Daily Steps Target</label>
+                <input type="number" name="target_steps" class="input-field" value="{{ session.get('target_steps', 10000) }}" min="1000" max="30000" step="500" style="width: 100%; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 500;">Water Goal (Litres)</label>
+                <input type="number" name="target_water" class="input-field" value="{{ session.get('target_water', 3.0) }}" min="1.0" max="6.0" step="0.1" style="width: 100%; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 500;">Monthly Allowance Budget ($)</label>
+                <input type="number" name="target_budget" class="input-field" value="{{ session.get('target_budget', 2000.0) }}" min="100" max="50000" step="100" style="width: 100%; margin-top: 5px;">
+            </div>
+            <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 15px;">
+                <button type="submit" class="btn-primary" style="padding: 0.6rem 2rem; border-radius: var(--radius-sm); border: none; cursor: pointer; font-weight: bold; background: var(--grad-productivity); color: #000;">
+                    Save Custom Targets
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

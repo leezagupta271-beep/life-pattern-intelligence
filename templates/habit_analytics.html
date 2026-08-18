@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Habit Analytics - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-productivity-text"><i class="fa-solid fa-chart-line"></i> Habit Analytics</h2>
+    <p class="text-sm">Explore correlations, trends, and impact scores to see how daily habits interact to influence your overall productivity.</p>
+</div>
+
+<!-- Habit Impact Analysis (Charts) -->
+<section class="full-width-card glass-card mod-ai" style="margin-bottom: 25px;">
+    <h3 class="mod-ai-text" style="margin-bottom: 15px;">
+        <div class="icon-circle mod-ai-bg"><i class="fa-solid fa-diagram-project"></i></div>
+        Habit Correlation & Impact Matrix
+    </h3>
+    <div class="multi-chart-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 15px;">
+        <div class="chart-placeholder medium mod-ai-border">
+            <img src="{{ analytics.graphs.correlation_matrix }}" alt="Correlation Matrix" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+        <div class="chart-placeholder medium mod-ai-border">
+            <img src="{{ analytics.graphs.trend_analysis }}" alt="Trend Analysis" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+        <div class="chart-placeholder medium mod-ai-border">
+            <img src="{{ analytics.graphs.habit_impact }}" alt="Habit Impact" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </div>
+    
+    <div class="summary-box mod-ai-box" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 15px; border-radius: var(--radius-sm);">
+        <h4 class="mod-ai-text" style="margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i> Observed Correlations</h4>
+        {% for obs in analytics.insights.observations %}
+        <p class="text-sm" style="line-height: 1.4;"><i class="fa-solid fa-check mod-health-text"></i> {{ obs }}</p>
+        {% endfor %}
+    </div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+    
+    <!-- Habit Relationship Flow -->
+    <section class="glass-card mod-productivity" style="padding: 20px;">
+        <h3 class="mod-productivity-text" style="margin-bottom: 15px;">
+            <div class="icon-circle mod-productivity-bg"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            Lifestyle Relationship Flow
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">How different aspects of your lifestyle trigger downstream modifications in other areas.</p>
+        <div class="summary-box mod-productivity-box" style="display: grid; gap: 12px; padding: 15px; border-radius: var(--radius-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem;">
+                <span class="mod-sleep-text" style="font-weight: 500;">Sleep Increases</span>
+                <i class="fa-solid fa-arrow-right"></i>
+                <strong>Estimated Productivity &uarr;</strong>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem;">
+                <span class="mod-health-text" style="font-weight: 500;">Regular Exercise</span>
+                <i class="fa-solid fa-arrow-right"></i>
+                <strong>Mood Elevation &uarr;</strong>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem;">
+                <span class="mod-burnout-text" style="font-weight: 500;">Stress Reduction</span>
+                <i class="fa-solid fa-arrow-right"></i>
+                <strong>Life Score Optimization &uarr;</strong>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem;">
+                <span class="mod-health-text" style="font-weight: 500;">Water Logged</span>
+                <i class="fa-solid fa-arrow-right"></i>
+                <strong>Hydration & Health &uarr;</strong>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem;">
+                <span class="mod-screentime-text" style="font-weight: 500;">Reduced Screens</span>
+                <i class="fa-solid fa-arrow-right"></i>
+                <strong>Deeper Sleep Quality &uarr;</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- Habit Impact Scores -->
+    <section class="glass-card mod-goals" style="padding: 20px;">
+        <h3 class="mod-goals-text" style="margin-bottom: 15px;">
+            <div class="icon-circle mod-goals-bg"><i class="fa-solid fa-heart-pulse"></i></div>
+            Habit Adherence Scores
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Current adherence levels against target thresholds based on your logged details.</p>
+        <div class="summary-box mod-goals-box" style="display: grid; gap: 15px; padding: 15px; border-radius: var(--radius-sm);">
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
+                    <strong>Sleep Adherence</strong>
+                    <span>{{ analytics.habit_impact_scores.sleep_pct }}%</span>
+                </div>
+                <div class="progress-bar"><div class="fill mod-sleep-bg" style="width: {{ analytics.habit_impact_scores.sleep_pct }}%;"></div></div>
+            </div>
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
+                    <strong>Exercise & Steps Adherence</strong>
+                    <span>{{ analytics.habit_impact_scores.exercise_pct }}%</span>
+                </div>
+                <div class="progress-bar"><div class="fill mod-health-bg" style="width: {{ analytics.habit_impact_scores.exercise_pct }}%;"></div></div>
+            </div>
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
+                    <strong>Hydration Adherence</strong>
+                    <span>{{ analytics.habit_impact_scores.water_pct }}%</span>
+                </div>
+                <div class="progress-bar"><div class="fill mod-finance-bg" style="width: {{ analytics.habit_impact_scores.water_pct }}%;"></div></div>
+            </div>
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
+                    <strong>Stress Resilience</strong>
+                    <span>{{ analytics.habit_impact_scores.stress_pct }}%</span>
+                </div>
+                <div class="progress-bar"><div class="fill mod-burnout-bg" style="width: {{ analytics.habit_impact_scores.stress_pct }}%;"></div></div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

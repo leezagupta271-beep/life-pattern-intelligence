@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Finance - Life Pattern Intelligence{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 class="mod-finance-text"><i class="fa-solid fa-wallet"></i> Finance Analytics</h2>
+    <p class="text-sm">Monitor daily expenditure logs, visualize monthly budget utilization, and dynamically evaluate savings rates against benchmarks.</p>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 20px;">
+    
+    <!-- Expense Donut Chart -->
+    <section class="bento-card glass-card mod-finance">
+        <h3 class="mod-finance-text">
+            <div class="icon-circle mod-finance-bg"><i class="fa-solid fa-chart-pie"></i></div>
+            Expense Breakdown
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Proportional share of daily spending relative to average logs.</p>
+        <div class="chart-placeholder donut mod-finance-border">
+            <img src="{{ analytics.graphs.expense_donut }}" alt="Expense Donut" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+
+    <!-- Monthly spending timeline -->
+    <section class="bento-card glass-card col-span-2 mod-finance">
+        <h3 class="mod-finance-text">
+            <div class="icon-circle mod-finance-bg"><i class="fa-solid fa-chart-line"></i></div>
+            Monthly Spending Trend
+        </h3>
+        <p class="text-sm" style="margin-bottom: 15px;">Tracking daily and cumulative expenses logged over time.</p>
+        <div class="chart-placeholder line mod-finance-border">
+            <img src="{{ analytics.graphs.monthly_spending }}" alt="Monthly Spending" style="width:100%; height:100%; object-fit:contain; border-radius:1rem;">
+        </div>
+    </section>
+</div>
+
+<!-- Savings & Allowance Statistics -->
+<section class="full-width-card glass-card mod-finance" style="margin-bottom: 20px;">
+    <h3 class="mod-finance-text" style="margin-bottom: 15px;">
+        <div class="icon-circle mod-finance-bg"><i class="fa-solid fa-sack-dollar"></i></div>
+        Dynamic Budget & Savings Analytics
+    </h3>
+    <p class="text-sm" style="margin-bottom: 20px;">Calculated dynamically from logged expenditures over the past 30 days.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div class="glass-panel mod-finance" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Monthly Allowance</span>
+            <h2 class="mod-finance-text" style="font-size: 2rem; margin: 5px 0;">$2,000.00</h2>
+            <p class="text-sm">Standard baseline allocation</p>
+        </div>
+        
+        <div class="glass-panel mod-burnout" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Actual Expenses (30 Days)</span>
+            <h2 class="mod-burnout-text" style="font-size: 2rem; margin: 5px 0;">
+                ${{ "{:,.2f}".format(analytics.expense_monthly) if analytics.expense_monthly is defined else "0.00" }}
+            </h2>
+            <p class="text-sm">Sum of logged expenses</p>
+        </div>
+
+        <div class="glass-panel mod-health" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Dynamic Savings Balance</span>
+            <h2 class="mod-health-text" style="font-size: 2rem; margin: 5px 0;">
+                ${{ "{:,.2f}".format(analytics.savings_val) if analytics.savings_val is defined else "0.00" }}
+            </h2>
+            <p class="text-sm">Remaining allowance</p>
+        </div>
+
+        <div class="glass-panel mod-goals" style="padding: 15px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--glass-border);">
+            <span class="text-sm" style="color: var(--text-muted);">Savings Rate Percentage</span>
+            <h2 class="mod-goals-text" style="font-size: 2rem; margin: 5px 0;">
+                {{ (analytics.savings_val / 2000 * 100)|int }}%
+            </h2>
+            <p class="text-sm">Saved vs Target budget</p>
+        </div>
+    </div>
+
+    <!-- Savings rate progress card -->
+    <div class="savings-card insight-box mod-finance-box" style="padding: 15px; border-radius: var(--radius-sm); width: 100%;">
+        <h4 style="margin-bottom: 5px;">Savings Goal Completion Progress</h4>
+        <div class="progress-bar" style="margin: 10px 0;"><div class="fill mod-finance-bg" style="width: {{ (analytics.savings_val / 2000 * 100)|int }}%;"></div></div>
+        <p class="text-sm">${{ "{:,.0f}".format(analytics.savings_val) }} of $2,000 monthly allowance saved</p>
+    </div>
+</section>
+{% endblock %}
