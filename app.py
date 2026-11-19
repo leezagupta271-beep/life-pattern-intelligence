@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from functools import wraps
+import os
 from pathlib import Path
+import secrets
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import joblib
@@ -14,8 +16,15 @@ import graphs
 import export_analytics
 
 BASE_DIR = Path(__file__).resolve().parent
-app = Flask(__name__)
-app.secret_key = "lpi-secure-session-key-v2-2026"
+app = Flask(
+    __name__,
+    static_folder=str(BASE_DIR / "public" / "static"),
+    static_url_path="/static",
+)
+secret_key = os.environ.get("SECRET_KEY")
+if os.environ.get("VERCEL") and not secret_key:
+    raise RuntimeError("Set the SECRET_KEY environment variable for Vercel deployments.")
+app.secret_key = secret_key or secrets.token_hex(32)
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',

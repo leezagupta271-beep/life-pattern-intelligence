@@ -1,8 +1,15 @@
 import sqlite3
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "users.db"
+DB_PATH = (
+    Path(os.environ["DATABASE_PATH"])
+    if os.environ.get("DATABASE_PATH")
+    else Path("/tmp/users.db")
+    if os.environ.get("VERCEL")
+    else BASE_DIR / "users.db"
+)
 
 
 def get_db():

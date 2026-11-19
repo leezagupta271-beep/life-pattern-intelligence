@@ -1,0 +1,7 @@
+users.db
+data_cleaning.ipynb
+inspect_*.py
+query_logged_in_users.py
+test_*.py
+__pycache__/
+*.py[cod]

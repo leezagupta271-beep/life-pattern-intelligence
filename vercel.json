@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "app.py": {
+      "excludeFiles": "{users.db,data_cleaning.ipynb,inspect_*.py,query_logged_in_users.py,test_*.py,__pycache__/**}"
+    }
+  }
+}
